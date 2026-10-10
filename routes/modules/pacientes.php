@@ -3,12 +3,10 @@
 use App\Http\Controllers\PacienteController;
 use Illuminate\Support\Facades\Route;
 
-// Consultar pacientes: recepción y odontólogos.
 Route::middleware('rol:RECEPCIONISTA,ODONTOLOGO')->group(function () {
     Route::get('/pacientes', [PacienteController::class, 'index'])
         ->name('pacientes.index');
 
-    // Registrar, editar y desactivar: solo recepción.
     Route::middleware('rol:RECEPCIONISTA')->group(function () {
         Route::get('/pacientes/crear', [PacienteController::class, 'create'])
             ->name('pacientes.create');
@@ -27,6 +25,10 @@ Route::middleware('rol:RECEPCIONISTA,ODONTOLOGO')->group(function () {
         Route::delete('/pacientes/{paciente}', [PacienteController::class, 'destroy'])
             ->whereNumber('paciente')
             ->name('pacientes.destroy');
+
+        Route::patch('/pacientes/{paciente}/activar', [PacienteController::class, 'activar'])
+            ->whereNumber('paciente')
+            ->name('pacientes.activar');
     });
 
     Route::get('/pacientes/{paciente}', [PacienteController::class, 'show'])

@@ -94,6 +94,16 @@ class PacienteController extends Controller
             ->with('exito', 'Paciente desactivado correctamente.');
     }
 
+    public function activar(Paciente $paciente): RedirectResponse
+    {
+        $this->verificarRecepcionista();
+        $this->pacienteService->activar($paciente);
+
+        return redirect()
+            ->route('pacientes.show', $paciente)
+            ->with('exito', 'Paciente reactivado correctamente.');
+    }
+
     private function verificarRecepcionista(): void
     {
         abort_unless(

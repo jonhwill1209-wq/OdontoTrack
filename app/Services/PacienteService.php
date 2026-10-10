@@ -13,22 +13,23 @@ class PacienteService
         string $buscar = '',
         string $estado = '1'
     ): LengthAwarePaginator {
-        $consulta = Paciente::query();
         $buscar = trim($buscar);
 
-        if ($buscar !== '') {
-            $consulta->where(function (Builder $query) use ($buscar) {
-                $query->where('nombres', 'like', "%{$buscar}%")
-                    ->orWhere('apellidos', 'like', "%{$buscar}%")
-                    ->orWhere('telefono', 'like', "%{$buscar}%");
-            });
-        }
-
-        if (in_array($estado, ['0', '1'], true)) {
-            $consulta->where('activo', $estado === '1');
-        }
-
-        return $consulta
+        return Paciente::query()
+            ->when($buscar !== '', function (Builder $query) use ($buscar) {
+                $query->where(function (Builder $consulta) use ($buscar) {
+                    $consulta
+                        ->where('nombres', 'like', "%{$buscar}%")
+                        ->orWhere('apellidos', 'like', "%{$buscar}%")
+                        ->orWhere('telefono', 'like', "%{$buscar}%");
+                });
+            })
+            ->when(
+                in_array($estado, ['0', '1'], true),
+                function (Builder $query) use ($estado) {
+                    $query->where('activo', $estado === '1');
+                }
+            )
             ->orderBy('apellidos')
             ->orderBy('nombres')
             ->orderBy('id_paciente')
@@ -44,8 +45,10 @@ class PacienteService
         return Paciente::create($datos);
     }
 
-    public function actualizar(Paciente $paciente, array $datos): Paciente
-    {
+    public function actualizar(
+        Paciente $paciente,
+        array $datos
+    ): Paciente {
         $paciente->update($this->datosPermitidos($datos));
 
         return $paciente->refresh();
@@ -54,6 +57,11 @@ class PacienteService
     public function desactivar(Paciente $paciente): void
     {
         $paciente->update(['activo' => false]);
+    }
+
+    public function activar(Paciente $paciente): void
+    {
+        $paciente->update(['activo' => true]);
     }
 
     private function datosPermitidos(array $datos): array
