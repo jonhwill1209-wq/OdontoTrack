@@ -2,63 +2,104 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePacienteRequest;
+use App\Http\Requests\UpdatePacienteRequest;
+use App\Models\Paciente;
+use App\Services\PacienteService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class PacienteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+    public function __construct(
+        private readonly PacienteService $pacienteService
+    ) {
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request): View
     {
-        //
+        $filtros = $request->validate([
+            'buscar' => ['nullable', 'string', 'max:100'],
+            'estado' => ['nullable', 'in:0,1,todos'],
+        ], [
+            'buscar.string' => 'La búsqueda debe ser texto.',
+            'buscar.max' => 'La búsqueda no debe superar 100 caracteres.',
+            'estado.in' => 'Selecciona un estado válido.',
+        ]);
+
+        $buscar = $filtros['buscar'] ?? '';
+        $estado = $filtros['estado'] ?? '1';
+
+        $pacientes = $this->pacienteService->listar($buscar, $estado);
+
+        return view('pacientes.index', compact(
+            'pacientes',
+            'buscar',
+            'estado'
+        ));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function create(): View
     {
-        //
+        $this->verificarRecepcionista();
+
+        return view('pacientes.create');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function store(StorePacienteRequest $request): RedirectResponse
     {
-        //
+        $paciente = $this->pacienteService->registrar(
+            $request->validated()
+        );
+
+        return redirect()
+            ->route('pacientes.show', $paciente)
+            ->with('success', 'Paciente registrado correctamente.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function show(Paciente $paciente): View
     {
-        //
+        return view('pacientes.show', compact('paciente'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function edit(Paciente $paciente): View
     {
-        //
+        $this->verificarRecepcionista();
+
+        return view('pacientes.edit', compact('paciente'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function update(
+        UpdatePacienteRequest $request,
+        Paciente $paciente
+    ): RedirectResponse {
+        $this->pacienteService->actualizar(
+            $paciente,
+            $request->validated()
+        );
+
+        return redirect()
+            ->route('pacientes.show', $paciente)
+            ->with('success', 'Paciente actualizado correctamente.');
+    }
+
+    public function destroy(Paciente $paciente): RedirectResponse
     {
-        //
+        $this->verificarRecepcionista();
+        $this->pacienteService->desactivar($paciente);
+
+        return redirect()
+            ->route('pacientes.index')
+            ->with('success', 'Paciente desactivado correctamente.');
+    }
+
+    private function verificarRecepcionista(): void
+    {
+        abort_unless(
+            auth()->user()?->esRecepcionista() === true,
+            403,
+            'No tienes permiso para realizar esta acción.'
+        );
     }
 }
