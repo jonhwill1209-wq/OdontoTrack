@@ -55,7 +55,7 @@ class PacienteController extends Controller
 
         return redirect()
             ->route('pacientes.show', $paciente)
-            ->with('success', 'Paciente registrado correctamente.');
+            ->with('exito', 'Paciente registrado correctamente.');
     }
 
     public function show(Paciente $paciente): View
@@ -81,7 +81,7 @@ class PacienteController extends Controller
 
         return redirect()
             ->route('pacientes.show', $paciente)
-            ->with('success', 'Paciente actualizado correctamente.');
+            ->with('exito', 'Paciente actualizado correctamente.');
     }
 
     public function destroy(Paciente $paciente): RedirectResponse
@@ -91,7 +91,7 @@ class PacienteController extends Controller
 
         return redirect()
             ->route('pacientes.index')
-            ->with('success', 'Paciente desactivado correctamente.');
+            ->with('exito', 'Paciente desactivado correctamente.');
     }
 
     private function verificarRecepcionista(): void
