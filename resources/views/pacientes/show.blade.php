@@ -99,7 +99,12 @@
 @endif
 
 @if (auth()->user()?->rol === 'ODONTOLOGO')
-<div class="mt-3">
+<div class="d-flex flex-wrap gap-2 mt-3">
+    <a href="{{ route('expedientes.show', $paciente) }}"
+       class="btn btn-outline-primary">
+        Ver expediente clínico
+    </a>
+
     <a href="{{ route('odontograma.show', $paciente) }}"
        class="btn btn-primary">
         Ver odontograma
