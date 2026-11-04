@@ -8,6 +8,9 @@ Route::middleware('rol:RECEPCIONISTA,ODONTOLOGO')->group(function () {
         ->name('pacientes.index');
 
     Route::middleware('rol:RECEPCIONISTA')->group(function () {
+        Route::get('/pacientes/exportar', [PacienteController::class, 'exportar'])
+            ->name('pacientes.exportar');
+
         Route::get('/pacientes/crear', [PacienteController::class, 'create'])
             ->name('pacientes.create');
 

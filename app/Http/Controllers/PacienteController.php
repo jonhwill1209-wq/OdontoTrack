@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PacientesExport;
 use App\Http\Requests\StorePacienteRequest;
 use App\Http\Requests\UpdatePacienteRequest;
 use App\Models\Paciente;
@@ -9,6 +10,8 @@ use App\Services\PacienteService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PacienteController extends Controller
 {
@@ -19,14 +22,7 @@ class PacienteController extends Controller
 
     public function index(Request $request): View
     {
-        $filtros = $request->validate([
-            'buscar' => ['nullable', 'string', 'max:100'],
-            'estado' => ['nullable', 'in:0,1,todos'],
-        ], [
-            'buscar.string' => 'La búsqueda debe ser texto.',
-            'buscar.max' => 'La búsqueda no debe superar 100 caracteres.',
-            'estado.in' => 'Selecciona un estado válido.',
-        ]);
+        $filtros = $this->validarFiltros($request);
 
         $buscar = $filtros['buscar'] ?? '';
         $estado = $filtros['estado'] ?? '1';
@@ -38,6 +34,26 @@ class PacienteController extends Controller
             'buscar',
             'estado'
         ));
+    }
+
+    public function exportar(Request $request): BinaryFileResponse
+    {
+        $this->verificarRecepcionista();
+
+        $filtros = $this->validarFiltros($request);
+
+        $buscar = $filtros['buscar'] ?? '';
+        $estado = $filtros['estado'] ?? '1';
+
+        $exportacion = new PacientesExport(
+            $this->pacienteService,
+            $buscar,
+            $estado
+        );
+
+        $nombreArchivo = 'pacientes_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+
+        return Excel::download($exportacion, $nombreArchivo);
     }
 
     public function create(): View
@@ -87,6 +103,7 @@ class PacienteController extends Controller
     public function destroy(Paciente $paciente): RedirectResponse
     {
         $this->verificarRecepcionista();
+
         $this->pacienteService->desactivar($paciente);
 
         return redirect()
@@ -97,11 +114,24 @@ class PacienteController extends Controller
     public function activar(Paciente $paciente): RedirectResponse
     {
         $this->verificarRecepcionista();
+
         $this->pacienteService->activar($paciente);
 
         return redirect()
             ->route('pacientes.show', $paciente)
             ->with('exito', 'Paciente reactivado correctamente.');
+    }
+
+    private function validarFiltros(Request $request): array
+    {
+        return $request->validate([
+            'buscar' => ['nullable', 'string', 'max:100'],
+            'estado' => ['nullable', 'in:0,1,todos'],
+        ], [
+            'buscar.string' => 'La búsqueda debe ser texto.',
+            'buscar.max' => 'La búsqueda no debe superar 100 caracteres.',
+            'estado.in' => 'Selecciona un estado válido.',
+        ]);
     }
 
     private function verificarRecepcionista(): void

@@ -13,6 +13,15 @@ class PacienteService
         string $buscar = '',
         string $estado = '1'
     ): LengthAwarePaginator {
+        return $this->consultaFiltrada($buscar, $estado)
+            ->paginate(10)
+            ->withQueryString();
+    }
+
+    public function consultaFiltrada(
+        string $buscar = '',
+        string $estado = '1'
+    ): Builder {
         $buscar = trim($buscar);
 
         return Paciente::query()
@@ -32,9 +41,7 @@ class PacienteService
             )
             ->orderBy('apellidos')
             ->orderBy('nombres')
-            ->orderBy('id_paciente')
-            ->paginate(10)
-            ->withQueryString();
+            ->orderBy('id_paciente');
     }
 
     public function registrar(array $datos): Paciente
