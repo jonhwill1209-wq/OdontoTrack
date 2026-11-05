@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\Rol;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -41,13 +44,23 @@ class Usuario extends Authenticatable
         return $this->hasOne(Odontologo::class, 'id_usuario', 'id_usuario');
     }
 
+    public function scopeActivos(Builder $query): Builder
+    {
+        return $query->where('activo', true);
+    }
+
+    protected function rolEtiqueta(): Attribute
+    {
+        return Attribute::get(fn () => Rol::tryFrom((string) $this->rol)?->etiqueta() ?? (string) $this->rol);
+    }
+
     public function esOdontologo(): bool
     {
-        return $this->rol === 'ODONTOLOGO';
+        return $this->rol === Rol::Odontologo->value;
     }
 
     public function esRecepcionista(): bool
     {
-        return $this->rol === 'RECEPCIONISTA';
+        return $this->rol === Rol::Recepcionista->value;
     }
 }

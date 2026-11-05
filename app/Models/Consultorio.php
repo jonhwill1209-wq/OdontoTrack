@@ -28,4 +28,9 @@ class Consultorio extends Model
     {
         return $this->hasMany(Cita::class, 'id_consultorio', 'id_consultorio');
     }
+
+    public function citasPendientes(): HasMany
+    {
+        return $this->citas()->where('cita.estado', Cita::PROGRAMADA)->where('cita.inicio', '>=', now());
+    }
 }
