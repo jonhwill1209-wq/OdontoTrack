@@ -1,0 +1,99 @@
+/*Usuarios, catálogos, login y páginas de error (Persona 2)*/
+.ot-estado-activo { background: #d8f0e3; color: #17663a; }
+.ot-estado-inactivo { background: var(--ot-niebla); color: #6e6e73; }
+
+.ot-rol {
+    display: inline-block;
+    padding: .2rem .65rem;
+    border-radius: 999px;
+    font-size: .8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ot-rol-recepcionista { background: var(--ot-azul-claro); color: #1f5a8f; }
+.ot-rol-odontologo { background: var(--ot-menta); color: #1d5c54; }
+
+.ot-filtros { margin-bottom: 1.25rem; }
+
+.ot-resumen-lista {
+    margin: 0 0 .75rem;
+    color: var(--bs-secondary-color);
+    font-size: .9rem;
+}
+
+.ot-ficha dt {
+    color: var(--bs-secondary-color);
+    font-size: .85rem;
+    font-weight: 500;
+}
+
+.ot-ficha dd { margin-bottom: .9rem; }
+
+.ot-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.ot-acciones form { margin: 0; }
+
+.ot-tabla-acciones {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: .4rem;
+}
+
+.ot-requisitos {
+    display: grid;
+    gap: .2rem;
+    margin: .5rem 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--bs-secondary-color);
+    font-size: .825rem;
+}
+
+.ot-requisitos li {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+}
+
+.ot-requisitos li.cumple { color: #17663a; }
+
+.ot-nota {
+    padding: .75rem 1rem;
+    border-radius: .75rem;
+    background: var(--ot-lienzo);
+    color: var(--ot-grafito);
+    font-size: .875rem;
+}
+
+.ot-error-icono {
+    display: inline-grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1rem;
+    border-radius: 50%;
+    background: var(--ot-azul-claro);
+    color: var(--ot-azul);
+    font-size: 1.75rem;
+}
+
+.ot-error-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .5rem;
+    margin-top: .75rem;
+}
+
+.ot-error-acciones .btn { margin-top: 0; }
+
+.ot-dato-secundario {
+    display: block;
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+}
