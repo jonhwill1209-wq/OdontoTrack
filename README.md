@@ -1,20 +1,30 @@
 # OdontoTrack
 
 Sistema integral de citas y expedientes odontológicos para la Clínica Odontológica Sonrisas.
-Proyecto del curso DWS901 (Universidad Don Bosco), Sprint II: Desarrollo Back-End y Persistencia.
+Proyecto del curso DWS901 (Universidad Don Bosco), Sprint III: Integración Full Stack y Release Candidate.
+
+## Sprint III
+
+Esta fase integra la interfaz, la lógica del servidor y la base de datos para preparar una versión candidata de liberación.
+
+- Matriz de pruebas: `docs/matriz-pruebas.md`
+- Registro de defectos: `docs/registro-defectos.md`
+- Observaciones del Sprint II: `docs/observaciones-sprint2.md`
+- Pruebas automatizadas: `php artisan test`
+- Estado actual: integración y pruebas en proceso.
 
 ## Stack
 
-| Elemento | Tecnología |
-|---|---|
-| Lenguaje | PHP 8.3 o superior |
-| Framework | Laravel 13 (arquitectura MVC) |
-| Vistas | Blade, con Bootstrap 5 y FullCalendar por CDN |
-| Base de datos | MySQL 8 (InnoDB), migraciones y seeders de Laravel |
-| Acceso a datos | Eloquent ORM |
+| Elemento | Tecnología                                            |
+|---|-------------------------------------------------------|
+| Lenguaje | PHP 8.4 o superior                                    |
+| Framework | Laravel 13 (arquitectura MVC)                         |
+| Vistas | Blade, con Bootstrap 5 y FullCalendar por CDN         |
+| Base de datos | MySQL 8 (InnoDB), migraciones y seeders de Laravel    |
+| Acceso a datos | Eloquent ORM                                          |
 | Autenticación | Sesiones de Laravel y contraseñas con bcrypt (`Hash`) |
-| Control de acceso | Middleware `rol` (RECEPCIONISTA / ODONTOLOGO) |
-| Pruebas | PHPUnit (`php artisan test`) |
+| Control de acceso | Middleware `rol` (RECEPCIONISTA / ODONTOLOGO)         |
+| Pruebas | PHPUnit (`php artisan test`)                          |
 
 No se necesita Node.js ni compilar recursos: la interfaz usa Bootstrap y FullCalendar desde CDN.
 
