@@ -17,8 +17,7 @@ Route::middleware(['auth', SinCache::class])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    require __DIR__ . '/modules/pacientes.php';
-    require __DIR__ . '/modules/citas.php';
-    require __DIR__ . '/modules/expedientes.php';
-    require __DIR__ . '/modules/odontograma.php';
+    foreach (glob(__DIR__ . '/modules/*.php') as $file) {
+        require $file;
+    }
 });
