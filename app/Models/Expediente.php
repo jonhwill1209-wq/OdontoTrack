@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Expediente extends Model
 {
     protected $table = 'expediente';
+
     protected $primaryKey = 'id_expediente';
+
     public $timestamps = false;
 
     protected $fillable = ['id_paciente'];
@@ -18,6 +20,11 @@ class Expediente extends Model
     protected function casts(): array
     {
         return ['creado_en' => 'datetime'];
+    }
+
+    public function archivos(): HasMany
+    {
+        return $this->hasMany(ArchivoClinico::class, 'id_expediente', 'id_expediente');
     }
 
     public function paciente(): BelongsTo
