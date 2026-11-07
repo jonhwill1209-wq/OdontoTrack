@@ -13,10 +13,10 @@ La carga de archivos acepta JPG, PNG y PDF de hasta 5120 KB. Se valida la extens
 La migración crea archivo_clinico con id, id_expediente, id_odontologo, nombre_original, ruta única, mime, tamano en bytes, descripcion y fecha. Las claves foráneas apuntan a expediente y odontologo. Los archivos permanecen en storage/app/private/clinicos, fuera de public. No es necesario ejecutar storage:link para este módulo.
 
 ## Integración con el proyecto del equipo
-El ZIP contiene únicamente los archivos modificados y nuevos, respetando sus rutas. Antes de copiar, respalda tu proyecto y compara los archivos con cambios posteriores del equipo. La base utilizada fue origin/develop; el parche también se incluye para revisión. No se subieron cambios a GitHub.
+La entrega se prepara en `feature/p5-expediente-archivos`, basada en `develop` actualizado al commit `6215057`. El autor de los commits es Soophi00. La integración se solicita mediante Pull Request hacia `develop`, para revisión del equipo.
 
-1. Trabajar en una rama feature desde develop actualizada y resolver cualquier conflicto con cambios de otros integrantes.
-2. Copiar los archivos del ZIP conservando sus carpetas.
+1. Descargar la rama del Pull Request y revisar sus cambios antes de integrar.
+2. Resolver cualquier cambio concurrente del equipo mediante el flujo de revisión habitual.
 3. Ejecutar composer install, configurar .env y APP_KEY según el README del equipo.
 4. Ejecutar php artisan migrate. No usar migrate:fresh en una base con información que deba conservarse.
 5. Configurar upload_max_filesize al menos en 5M y post_max_size por encima de 5M. Dar permiso de escritura a storage y bootstrap/cache.
