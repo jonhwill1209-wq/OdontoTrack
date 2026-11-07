@@ -15,7 +15,19 @@
     </div>
 </div>
 
-{{-- Formulario aparte: no se pueden anidar formularios --}}
+{{-- Formularios aparte: no se pueden anidar formularios --}}
+<div class="card border-success mb-3">
+    <div class="card-body d-flex justify-content-between align-items-center">
+        <span>Marcar esta cita como realizada (ya no podrá modificarse).</span>
+        <form method="POST" action="{{ route('citas.realizar', $cita) }}"
+              onsubmit="return confirm('¿Marcar esta cita como realizada?');">
+            @csrf
+            @method('PATCH')
+            <button type="submit" class="btn btn-success">Marcar realizada</button>
+        </form>
+    </div>
+</div>
+
 <div class="card border-danger">
     <div class="card-body d-flex justify-content-between align-items-center">
         <span>Cancelar esta cita (el registro se conserva con estado CANCELADA).</span>
