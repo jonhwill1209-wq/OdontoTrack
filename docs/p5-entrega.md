@@ -26,7 +26,7 @@ La entrega se prepara en `feature/p5-expediente-archivos`, basada en `develop` a
 9. Solicitar a P4 la prueba cruzada de P5 y entregar a P1 los archivos y evidencias para integrar mediante PR.
 
 ## Validación realizada
-Se ejecutaron ExpedienteClinicoTest y OdontogramaTest: 9 pruebas aprobadas, 83 aserciones. Entorno utilizado: PHP 8.5.11 de Laragon y SQLite en archivo aislado. Se comprobó la compilación de vistas Blade y se aplicó formato Pint a los archivos PHP nuevos o modificados. No se ha certificado ejecución sobre MySQL ni validación visual en dos navegadores o móvil.
+Se ejecutaron ExpedienteClinicoTest y OdontogramaTest después de actualizar la rama con develop: 9 pruebas aprobadas, 83 aserciones (7 de noviembre de 2026). Entorno utilizado: PHP 8.5.11 de Laragon y SQLite en archivo aislado. Se comprobó la compilación de vistas Blade y se aplicó formato Pint a los archivos PHP nuevos o modificados. No se ha certificado ejecución sobre MySQL ni validación visual en dos navegadores o móvil.
 
 Las pruebas comprueban el acceso sin sesión, rechazo del rol Recepcionista, flujo de anamnesis, tratamiento y evolución, lectura del expediente, rechazo de tratamiento ajeno al paciente, carga y consulta privada de archivo, rechazo de archivo ajeno al paciente, archivo de más de 5 MB y formato no permitido. Las pruebas existentes del odontograma verifican sus flujos e historial.
 
