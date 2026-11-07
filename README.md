@@ -1,7 +1,7 @@
 # OdontoTrack
 
 Sistema integral de citas y expedientes odontológicos para la Clínica Odontológica Sonrisas.
-Proyecto del curso DWS901 (Universidad Don Bosco), Sprint II: Desarrollo Back-End y Persistencia.
+Proyecto del curso DWS901 (Universidad Don Bosco), con autenticación, agenda, expedientes clínicos, historial odontológico y reportes.
 
 ## Stack
 
@@ -9,14 +9,14 @@ Proyecto del curso DWS901 (Universidad Don Bosco), Sprint II: Desarrollo Back-En
 |---|---|
 | Lenguaje | PHP 8.3 o superior |
 | Framework | Laravel 13 (arquitectura MVC) |
-| Vistas | Blade, con Bootstrap 5 y FullCalendar por CDN |
+| Vistas | Blade y Bootstrap 5; FullCalendar y Chart.js por CDN |
 | Base de datos | MySQL 8 (InnoDB), migraciones y seeders de Laravel |
 | Acceso a datos | Eloquent ORM |
 | Autenticación | Sesiones de Laravel y contraseñas con bcrypt (`Hash`) |
 | Control de acceso | Middleware `rol` (RECEPCIONISTA / ODONTOLOGO) |
 | Pruebas | PHPUnit (`php artisan test`) |
 
-No se necesita Node.js ni compilar recursos: la interfaz usa Bootstrap y FullCalendar desde CDN.
+Vite está disponible para los recursos locales del proyecto; Bootstrap, FullCalendar y Chart.js se cargan desde CDN.
 
 ## Requisitos previos
 
@@ -61,6 +61,7 @@ php artisan serve               # http://127.0.0.1:8000
 ```
 
 Para reconstruir la base desde cero: `php artisan migrate:fresh --seed`.
+Los archivos clínicos se guardan en el disco privado `local` de Laravel y se consultan mediante rutas autenticadas; no se requiere publicar `storage`.
 
 ## Credenciales de prueba (solo desarrollo)
 
@@ -94,7 +95,8 @@ app/
     Middleware/          CheckRole (alias "rol")
     Requests/            Validación de formularios (FormRequest)
   Models/                Entidades Eloquent
-  Services/              Reglas de negocio (CitaService, ...)
+  Services/              Reglas de negocio y agregaciones (CitaService, ReporteService, ...)
+  Exports/               Exportaciones Excel
 database/
   migrations/            Una migración por tabla
   seeders/               Datos de prueba
@@ -115,9 +117,18 @@ database/odontotrack.sql Respaldo de la base de datos
 | Registrar, actualizar y dar de baja pacientes | ✓ | — |
 | Consultar pacientes | ✓ | ✓ |
 | Consultar, crear, modificar y cancelar citas | ✓ | ✓ |
-| Expediente, historial médico, odontograma y tratamientos | — | ✓ |
+| Expediente, anamnesis, adjuntos, odontograma y tratamientos | — | ✓ |
+| Evoluciones clínicas | — | ✓ |
+| Reportes de citas y exportación PDF/Excel | ✓ | ✓ (solo sus citas) |
 
 La baja de un paciente es lógica (`activo = false`) para conservar su expediente.
+
+## Expedientes y reportes
+
+- El odontólogo puede consultar el expediente, registrar alergias, antecedentes y medicamentos, y crear/actualizar tratamientos.
+- Los documentos aceptados son PDF, JPG y PNG (máximo 10 MB). Se almacenan de forma privada y se descargan únicamente tras autenticación y autorización de odontólogo.
+- Las evoluciones clínicas quedan ligadas al odontólogo autenticado. No se permite eliminar tratamientos que ya tengan evoluciones.
+- El reporte de citas permite filtrar por fechas (hasta un año), consultar métricas por estado y el detalle, y descargar PDF o Excel. El reporte de odontólogo limita resultados a sus propias citas.
 
 ## Regla de negocio principal: citas sin empalme
 
@@ -140,12 +151,15 @@ guarda y se muestra un mensaje claro.
 php artisan test
 ```
 
-Las pruebas usan la base `odontotrack_test` y cubren conexión, rutas, autenticación, consultas y
-operaciones CRUD. Las evidencias y las incidencias conocidas se documentan en `docs/`.
+Las pruebas usan la base `odontotrack_test` y cubren autenticación, permisos, persistencia, CRUD,
+archivos clínicos, reportes y exportaciones. La matriz y los pendientes de verificación visual están
+en `docs/matriz-pruebas.md`; los defectos se registran en `docs/registro-defectos.md`.
+
+La comprobación en navegadores y resoluciones debe completarse manualmente antes de declarar el Release Candidate como listo para despliegue. La administración de usuarios también requiere definir un rol administrador y confirmar su alcance.
 
 ## Enlaces
 
-- Product Backlog (Asana): _pendiente de completar_
+- Product Backlog (Asana): [_pendiente de completar_](https://sharing.clickup.com/90141780381/l/h/6-901422972506-1/64db934a0387f89)
 - Prototipo (Figma): https://www.figma.com/proto/lmR505GqiY1BodqzwLWy9a/OdontoTrack---Prototipo-Web?node-id=5-15&t=IeuclG3tZn5Ervd2-1
 - Repositorio: https://github.com/jonhwill1209-wq/OdontoTrack
 
@@ -162,4 +176,5 @@ operaciones CRUD. Las evidencias y las incidencias conocidas se documentan en `d
 
 ## Limitaciones conocidas y tareas pendientes
 
-_Se completa al cerrar el sprint._
+- Pendiente la comprobación visual en navegadores y resoluciones diferentes.
+- La administración de cuentas no está habilitada porque el modelo de roles actual no define un rol administrador.

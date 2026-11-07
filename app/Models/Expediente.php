@@ -39,4 +39,9 @@ class Expediente extends Model
     {
         return $this->hasMany(RegistroOdontograma::class, 'id_expediente', 'id_expediente');
     }
+
+    public function archivos(): HasMany
+    {
+        return $this->hasMany(ExpedienteArchivo::class, 'id_expediente', 'id_expediente');
+    }
 }

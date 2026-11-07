@@ -63,6 +63,10 @@ class DashboardController extends Controller
                 ['ruta' => 'citas.index', 'texto' => 'Ver la agenda', 'icono' => 'bi-calendar-week'],
             ];
 
-        return array_values(array_filter($accesos, fn ($acceso) => Route::has($acceso['ruta'])));
+        return array_values(array_filter(
+            $accesos,
+            fn ($acceso) => Route::has($acceso['ruta'])
+                && ($acceso['ruta'] !== 'expedientes.index' || $usuario->odontologo !== null)
+        ));
     }
 }
