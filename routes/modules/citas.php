@@ -1,6 +1,6 @@
 <?php
 
-// Responsable: Persona 5 (Agenda de citas)
+// Responsable: Persona 4 (Agenda de citas)
 // Ambos roles pueden consultar, crear, modificar y cancelar citas.
 
 use App\Http\Controllers\CitaController;
@@ -20,4 +20,8 @@ Route::middleware('rol:RECEPCIONISTA,ODONTOLOGO')->group(function () {
         ->whereNumber('cita')->name('citas.update');
     Route::patch('/citas/{cita}/cancelar', [CitaController::class, 'cancelar'])
         ->whereNumber('cita')->name('citas.cancelar');
+    Route::patch('/citas/{cita}/realizar', [CitaController::class, 'realizar'])
+        ->whereNumber('cita')->name('citas.realizar');
+    Route::patch('/citas/{cita}/mover', [CitaController::class, 'mover'])
+        ->whereNumber('cita')->name('citas.mover');
 });

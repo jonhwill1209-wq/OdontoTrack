@@ -55,6 +55,7 @@ class CitaController extends Controller
                 'title' => $cita->paciente->nombres . ' ' . $cita->paciente->apellidos,
                 'start' => $cita->inicio->toIso8601String(),
                 'end' => $cita->fin->toIso8601String(),
+                'editable' => $programada,
                 'color' => match ($cita->estado) {
                     Cita::CANCELADA => '#adb5bd',
                     Cita::REALIZADA => '#198754',
@@ -66,6 +67,9 @@ class CitaController extends Controller
                     'consultorio' => $cita->consultorio->nombre,
                     'motivo' => $cita->motivo,
                     'url_editar' => $programada ? route('citas.edit', $cita) : null,
+                    'url_mover' => $programada ? route('citas.mover', $cita) : null,
+                    'url_realizar' => $programada ? route('citas.realizar', $cita) : null,
+                    'url_cancelar' => $programada ? route('citas.cancelar', $cita) : null,
                 ],
             ];
         });
@@ -127,6 +131,47 @@ class CitaController extends Controller
         $this->citaService->cancelar($cita);
 
         return redirect()->route('citas.index')->with('exito', 'Cita cancelada.');
+    }
+
+    // Marca una cita programada como realizada
+    public function realizar(Cita $cita): RedirectResponse
+    {
+        if ($bloqueo = $this->bloquearSiNoProgramada($cita)) {
+            return $bloqueo;
+        }
+
+        $this->citaService->marcarRealizada($cita);
+
+        return redirect()->route('citas.index')->with('exito', 'Cita marcada como realizada.');
+    }
+
+    // Arrastrar o redimensionar en el calendario. Responde JSON para que FullCalendar acepte o revierta el cambio
+    public function mover(Request $request, Cita $cita): JsonResponse
+    {
+        if ($cita->estado !== Cita::PROGRAMADA) {
+            return response()->json(['mensaje' => 'Solo se pueden mover citas programadas.'], 422);
+        }
+
+        $datos = $request->validate([
+            'inicio' => ['required', 'date'],
+            'fin' => ['required', 'date', 'after:inicio'],
+        ], [
+            'inicio.required' => 'Indica la fecha y hora de inicio.',
+            'fin.required' => 'Indica la fecha y hora de fin.',
+            'fin.after' => 'La hora de fin debe ser posterior a la de inicio.',
+        ]);
+
+        try {
+            $this->citaService->reprogramar(
+                $cita,
+                Carbon::parse($datos['inicio'])->setTimezone(config('app.timezone')),
+                Carbon::parse($datos['fin'])->setTimezone(config('app.timezone')),
+            );
+        } catch (HorarioOcupadoException|InvalidArgumentException $e) {
+            return response()->json(['mensaje' => $e->getMessage()], 422);
+        }
+
+        return response()->json(['mensaje' => 'Cita reprogramada correctamente.']);
     }
 
     private function bloquearSiNoProgramada(Cita $cita): ?RedirectResponse

@@ -54,6 +54,7 @@ $odontologoValor = old('id_odontologo', $cita->id_odontologo ?? $odontologoPorDe
     <div class="col-md-6">
         <label for="inicio" class="form-label">Inicio *</label>
         <input type="datetime-local" id="inicio" name="inicio" value="{{ $inicioValor }}" required
+               @unless ($cita->exists) min="{{ now()->format('Y-m-d\TH:i') }}" @endunless
                class="form-control @error('inicio') is-invalid @enderror">
         @error('inicio')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
@@ -77,3 +78,41 @@ $odontologoValor = old('id_odontologo', $cita->id_odontologo ?? $odontologoPorDe
     <button type="submit" class="btn btn-primary">{{ $textoBoton ?? 'Guardar' }}</button>
     <a href="{{ route('citas.index') }}" class="btn btn-outline-secondary">Volver a la agenda</a>
 </div>
+
+@push('scripts')
+<script>
+// Validación en el navegador (el servidor valida de nuevo)
+document.addEventListener('DOMContentLoaded', function () {
+    const inicio = document.getElementById('inicio');
+    const fin = document.getElementById('fin');
+    const esNueva = @json(! $cita->exists);
+
+    function validar() {
+        inicio.setCustomValidity('');
+        fin.setCustomValidity('');
+
+        if (esNueva && inicio.value && new Date(inicio.value) < new Date()) {
+            inicio.setCustomValidity('No se pueden agendar citas en fechas u horas pasadas.');
+        }
+        if (inicio.value && fin.value && new Date(fin.value) <= new Date(inicio.value)) {
+            fin.setCustomValidity('La hora de fin debe ser posterior a la de inicio.');
+        }
+        if (inicio.value) fin.min = inicio.value;
+    }
+
+    [inicio, fin].forEach(function (campo) {
+        campo.addEventListener('input', validar);
+        campo.addEventListener('change', validar);
+    });
+    validar();
+
+    inicio.form.addEventListener('submit', function (e) {
+        validar();
+        if (!inicio.form.checkValidity()) {
+            e.preventDefault();
+            inicio.form.reportValidity();
+        }
+    });
+});
+</script>
+@endpush
