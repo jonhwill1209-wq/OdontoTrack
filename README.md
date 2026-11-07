@@ -155,7 +155,7 @@ operaciones CRUD. Las evidencias y las incidencias conocidas se documentan en `d
 
 ## Enlaces
 
-- Product Backlog (Asana): _pendiente de completar_
+- Product Backlog (Asana): https://sharing.clickup.com/90141780381/l/h/6-901422972506-1/64db934a0387f89
 - Prototipo (Figma): https://www.figma.com/proto/lmR505GqiY1BodqzwLWy9a/OdontoTrack---Prototipo-Web?node-id=5-15&t=IeuclG3tZn5Ervd2-1
 - Repositorio: https://github.com/jonhwill1209-wq/OdontoTrack
 
