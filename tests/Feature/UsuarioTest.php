@@ -271,6 +271,46 @@ class UsuarioTest extends TestCase
         $this->assertSame(0, Odontologo::activos()->count());
     }
 
+    //DEF-01
+    public function test_el_menu_muestra_administracion_solo_a_recepcion(): void
+    {
+        $this->actingAs($this->crearRecepcionista())
+            ->get(route('dashboard'))
+            ->assertSee('Administración')
+            ->assertSee('href="' . route('usuarios.index') . '"', false)
+            ->assertSee('href="' . route('odontologos.index') . '"', false)
+            ->assertSee('href="' . route('consultorios.index') . '"', false)
+            ->assertSee('href="' . route('cuenta.edit') . '"', false);
+
+        $this->actingAs($this->crearOdontologo()->usuario)
+            ->get(route('dashboard'))
+            ->assertDontSee('Administración')
+            ->assertDontSee('href="' . route('usuarios.index') . '"', false)
+            ->assertSee('href="' . route('cuenta.edit') . '"', false);
+    }
+
+    //DEF-02
+    public function test_acepta_nombres_con_mayusculas_y_tildes(): void
+    {
+        $this->actingAs($this->crearRecepcionista());
+
+        $nombres = ['Recepcion QA', 'JOSÉ PÉREZ', "Dra. María O'Neil-Núñez", 'prueba usuario'];
+
+        foreach ($nombres as $indice => $nombre) {
+            $this->post(route('usuarios.store'), $this->datosValidos([
+                'nombre' => $nombre,
+                'correo' => "nombre{$indice}@clinica.test",
+            ]))->assertSessionHasNoErrors();
+
+            $this->assertDatabaseHas('usuario', ['nombre' => $nombre]);
+        }
+
+        foreach (['Ana2', '<b>Ana</b>', '.Ana'] as $invalido) {
+            $this->post(route('usuarios.store'), $this->datosValidos(['nombre' => $invalido, 'correo' => 'otro@clinica.test']))
+                ->assertSessionHasErrors('nombre');
+        }
+    }
+
     public function test_la_ficha_muestra_los_datos_y_el_perfil_profesional(): void
     {
         $odontologo = $this->crearOdontologo(['nombre' => 'Dra. Elena Ruiz'], 'JVPO-3003');
