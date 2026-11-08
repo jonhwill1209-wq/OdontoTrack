@@ -82,7 +82,7 @@
                         <td>{{ number_format($archivo->tamano / 1024, 1) }} KB</td>
                         <td>{{ $archivo->subido_en?->format('d/m/Y H:i') }}</td>
                         <td class="d-flex gap-2">
-                            <a class="btn btn-sm btn-outline-primary" href="{{ route('expedientes.archivos.download', $archivo) }}">Consultar</a>
+                            <a class="btn btn-sm btn-outline-primary" href="{{ route('expedientes.archivos.download', $archivo) }}">Consultar / descargar</a>
                             <form method="POST" action="{{ route('expedientes.archivos.destroy', $archivo) }}"
                                   onsubmit="return confirm('¿Eliminar este archivo del expediente?');">
                                 @csrf @method('DELETE')

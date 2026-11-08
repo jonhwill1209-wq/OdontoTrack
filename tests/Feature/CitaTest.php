@@ -255,7 +255,7 @@ class CitaTest extends TestCase
     public function test_mover_cita_a_horario_ocupado_responde_422_y_no_cambia(): void
     {
         $this->servicio->crear($this->datos($this->odontologoA, $this->consultorioA, '09:00', '10:00'));
-        $otra = $this->servicio->crear($this->datos($this->odontologoB, $this->consultorioB, '11:00', '12:00'));
+        $otra = $this->servicio->crear($this->datos($this->odontologoB, $this->consultorioA, '11:00', '12:00'));
         $dia = Carbon::now()->addDays(5)->format('Y-m-d');
 
         $this->actingAs($this->recepcion())

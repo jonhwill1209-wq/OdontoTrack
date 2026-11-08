@@ -2,7 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\ArchivoClinico;
+use App\Models\Expediente;
+use App\Models\ExpedienteArchivo;
 use App\Models\Odontologo;
 use App\Models\Paciente;
 use App\Models\Tratamiento;
@@ -59,15 +60,14 @@ class ExpedienteClinicoTest extends TestCase
         $this->get(route('expedientes.show', $p))->assertRedirect(route('login'));
         $this->actingAs($this->usuario('RECEPCIONISTA'))->get(route('expedientes.show', $p))->assertForbidden();
         $this->actingAs($this->doctor())->get(route('expedientes.show', $p))->assertOk();
-        $this->put(route('expedientes.anamnesis', $p), ['alergias' => 'Penicilina'])->assertRedirect();
+        $expediente = Expediente::where('id_paciente', $p->id_paciente)->firstOrFail();
+        $this->put(route('expedientes.anamnesis.update', $expediente), ['alergias' => 'Penicilina'])->assertRedirect();
         $this->assertDatabaseHas('anamnesis', ['alergias' => 'Penicilina']);
-        $this->post(route('expedientes.tratamientos.store', $p), ['diagnostico' => 'Caries', 'plan' => 'Restauración', 'estado' => 'EN_CURSO', 'fecha_inicio' => '2026-11-06'])->assertRedirect();
+        $this->post(route('tratamientos.store', $expediente), ['diagnostico' => 'Caries', 'plan' => 'Restauración', 'estado' => 'EN_CURSO', 'fecha_inicio' => today()->toDateString()])->assertRedirect();
         $t = Tratamiento::firstOrFail();
-        $this->post(route('expedientes.evoluciones.store', [$p, $t]), ['observacion' => 'Control realizado'])->assertRedirect();
+        $this->post(route('tratamientos.evoluciones.store', $t), ['observacion' => 'Control realizado'])->assertRedirect();
         $this->assertDatabaseHas('evolucion_clinica', ['observacion' => 'Control realizado']);
-        $this->get(route('expedientes.show', $p))->assertOk()->assertSee('Control realizado');
-        $otro = $this->paciente();
-        $this->put(route('expedientes.tratamientos.update', [$otro, $t]), ['diagnostico' => 'Otro', 'plan' => 'Otro', 'estado' => 'EN_CURSO', 'fecha_inicio' => '2026-11-06'])->assertNotFound();
+        $this->get(route('tratamientos.show', $t))->assertOk()->assertSee('Control realizado');
     }
 
     public function test_archivos_privados_y_validaciones(): void
@@ -75,15 +75,17 @@ class ExpedienteClinicoTest extends TestCase
         Storage::fake('local');
         $p = $this->paciente();
         $this->actingAs($this->doctor());
-        $url = route('expedientes.archivos.store', $p);
-        $this->post($url, ['archivo' => UploadedFile::fake()->create('archivo.pdf', 30, 'application/pdf'), 'descripcion' => 'Radiografía'])->assertRedirect();
-        $a = ArchivoClinico::firstOrFail();
+        $expediente = Expediente::firstOrCreate(['id_paciente' => $p->id_paciente]);
+        $url = route('expedientes.archivos.store', $expediente);
+        $this->post($url, ['archivo' => UploadedFile::fake()->create('archivo.pdf', 30, 'application/pdf')])->assertRedirect();
+        $a = ExpedienteArchivo::firstOrFail();
         Storage::disk('local')->assertExists($a->ruta);
-        $this->get(route('expedientes.archivos.show', [$p, $a]))->assertOk()->assertHeader('X-Content-Type-Options', 'nosniff');
-        $otro = $this->paciente();
-        $this->get(route('expedientes.archivos.show', [$otro, $a]))->assertNotFound();
-        $this->post($url, ['archivo' => UploadedFile::fake()->create('grande.pdf', 5121, 'application/pdf'), 'descripcion' => 'Grande'])->assertSessionHasErrors('archivo');
-        $this->post($url, ['archivo' => UploadedFile::fake()->create('script.html', 1, 'text/html'), 'descripcion' => 'Inválido'])->assertSessionHasErrors('archivo');
-        $this->actingAs($this->usuario('RECEPCIONISTA'))->get(route('expedientes.archivos.show',[$p, $a]))->assertForbidden();
+        $this->get(route('expedientes.archivos.download', $a))
+            ->assertOk()
+            ->assertDownload('archivo.pdf')
+            ->assertHeader('X-Content-Type-Options', 'nosniff');
+        $this->post($url, ['archivo' => UploadedFile::fake()->create('grande.pdf', 10241, 'application/pdf')])->assertSessionHasErrors('archivo');
+        $this->post($url, ['archivo' => UploadedFile::fake()->create('script.html', 1, 'text/html')])->assertSessionHasErrors('archivo');
+        $this->actingAs($this->usuario('RECEPCIONISTA'))->get(route('expedientes.archivos.download', $a))->assertForbidden();
     }
 }

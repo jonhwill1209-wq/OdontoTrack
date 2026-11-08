@@ -22,11 +22,6 @@ class Expediente extends Model
         return ['creado_en' => 'datetime'];
     }
 
-    public function archivos(): HasMany
-    {
-        return $this->hasMany(ArchivoClinico::class, 'id_expediente', 'id_expediente');
-    }
-
     public function paciente(): BelongsTo
     {
         return $this->belongsTo(Paciente::class, 'id_paciente', 'id_paciente');
