@@ -1,26 +1,22 @@
-| ID    | Módulo              | Caso de prueba                       | Pasos                                              | Resultado esperado                                  | Resultado obtenido                         | Navegador        | Estado   |
-|-------|---------------------|--------------------------------------|----------------------------------------------------|-----------------------------------------------------|--------------------------------------------|------------------|----------|
-| CP-01 | Integración general | Pruebas automatizadas completas      | Ejecutar `php artisan test`                        | Todas las pruebas deben pasar                       | 54 pruebas pasadas, 369 validaciones       | Terminal Laragon | Aprobado |
-| CP-02 | Pacientes           | Validación de campos obligatorios    | Abrir registro de paciente y guardar vacío         | Deben aparecer mensajes de validación               | Se mostró mensaje de campo obligatorio     | Firefox          | Aprobado |
-| CP-03 | Pacientes           | Registrar y buscar paciente          | Registrar Ana Prueba y buscar “ana”                | El paciente debe guardarse y aparecer en resultados | Registro y búsqueda correctos              | Firefox          | Aprobado |
-| CP-04 | Pacientes           | Exportar pacientes filtrados         | Buscar “ana” y exportar a Excel                    | Debe descargarse Excel con resultados filtrados     | Archivo Excel generado con 2 pacientes     | Firefox y Excel  | Aprobado |
-| CP-05 | Seguridad           | Restricción de registro de pacientes | Iniciar como odontólogo y abrir `/pacientes/crear` | Debe mostrar error 403                              | Acceso denegado 403 mostrado correctamente | Firefox          | Aprobado |
-| CP-06 | Agenda              | Carga de agenda para odontólogo      | Iniciar como odontólogo y abrir Agenda de citas    | La agenda debe cargar sin errores                   | Agenda cargó correctamente                 | Firefox          | Aprobado |
-| CP-P4-01 | Agenda | Vistas mes, semana y día | Abrir Agenda de citas y alternar entre Mes, Semana y Día | El calendario cambia de vista sin errores | Pendiente de ejecución manual | Firefox / Chrome | Pendiente |
-| CP-P4-02 | Agenda | Filtros por odontólogo y consultorio | Elegir un odontólogo y luego un consultorio en los filtros | Solo se muestran las citas del filtro | Pendiente de ejecución manual | Firefox / Chrome | Pendiente |
-| CP-P4-03 | Agenda | Crear cita válida | Nueva cita con fecha futura y datos completos | La cita aparece en el calendario con mensaje de éxito | Pendiente de ejecución manual | Firefox / Chrome | Pendiente |
-| CP-P4-04 | Agenda | Alerta por empalme de horario | Crear una cita con el mismo odontólogo o consultorio y horario ocupado | Se muestra "El odontólogo o el consultorio ya tienen una cita en ese horario" | Cubierto por `CitaTest`; falta prueba manual | Firefox / Chrome | Pendiente |
-| CP-P4-05 | Agenda | Fecha pasada y fin anterior al inicio | Intentar agendar ayer, o con fin menor al inicio | El navegador y el servidor rechazan el formulario con mensaje | Cubierto por `CitaTest`; falta prueba manual | Firefox / Chrome | Pendiente |
-| CP-P4-06 | Agenda | Mover cita arrastrando | Arrastrar una cita programada a un horario libre | Se guarda y se muestra mensaje de éxito | Pendiente de ejecución manual | Firefox / Chrome | Pendiente |
-| CP-P4-07 | Agenda | Mover cita a horario ocupado | Arrastrar una cita sobre otra del mismo odontólogo | La cita vuelve a su lugar y aparece la alerta | Pendiente de ejecución manual | Firefox / Chrome | Pendiente |
-| CP-P4-08 | Agenda | Cancelar y marcar realizada | Abrir el detalle y usar Cancelar y Marcar realizada | El estado cambia y la cita ya no se puede modificar | Cubierto por `CitaTest`; falta prueba manual | Firefox / Chrome | Pendiente |
-| CP-P4-09 | Agenda | Agenda en móvil | Abrir la agenda a 375 px de ancho | Filtros y calendario se adaptan sin desbordar | Pendiente de ejecución manual | Móvil / DevTools | Pendiente |
+# Matriz de pruebas de integración
 
-| CP-P5-01 | Expediente clínico | Autenticación y rol | Consultar expediente sin sesión y como Recepcionista | Login o 403 | Cubierto por ExpedienteClinicoTest; falta validación manual | PHPUnit / SQLite | Automatizado aprobado |
-| CP-P5-02 | Expediente clínico | Anamnesis, tratamiento y evolución | Guardar anamnesis, tratamiento y evolución y consultar detalle | Datos persistidos y visibles | Cubierto por ExpedienteClinicoTest | PHPUnit / SQLite | Automatizado aprobado |
-| CP-P5-03 | Archivos clínicos | Carga y consulta privada | Subir PDF y consultar desde el expediente | Archivo persistido y respuesta protegida | Cubierto por ExpedienteClinicoTest | PHPUnit / SQLite | Automatizado aprobado |
-| CP-P5-04 | Archivos clínicos | Validación de formato y tamaño | Enviar HTML y archivo de 5121 KB | Rechazo sin guardar | Cubierto por ExpedienteClinicoTest | PHPUnit / SQLite | Automatizado aprobado |
-| CP-P5-05 | Expediente clínico | Pertenencia al paciente | Usar tratamiento o archivo de otro paciente en la URL | 404 | Cubierto por ExpedienteClinicoTest | PHPUnit / SQLite | Automatizado aprobado |
-| CP-P5-06 | Odontograma | Registro por pieza y cara e historial | Registrar condiciones y consultar historial | Conserva registros y muestra estado actual | OdontogramaTest: 7 pruebas existentes | PHPUnit / SQLite | Automatizado aprobado |
-| CP-P5-07 | Expediente clínico | Adaptación y flujo completo | Repetir carga JPG, PNG y PDF, edición y descarga en dos navegadores y móvil | Formularios utilizables y archivos consultables | Pendiente de ejecución manual por P5 y prueba cruzada P4 | Chrome / Edge / móvil | Pendiente |
-| CP-P5-08 | P6 prueba cruzada | Dashboard, reportes y exportaciones | Verificar indicadores, filtros, gráficos, PDF y Excel de P6 | Totales consistentes, sin facturación | Falta entrega completa de reportes de P6 en la base revisada | Por definir | Pendiente |
+## Evidencia automatizada
+
+Ejecución registrada: `php artisan test --compact` — **60 pruebas aprobadas, 426 aserciones** (suite del 7 de noviembre de 2026).
+
+| ID | Módulo | Caso de prueba | Pasos / cobertura | Resultado esperado | Resultado obtenido | Navegador | Estado |
+|---|---|---|---|---|---|---|---|
+| INT-01 | Autenticación | Inicio de sesión, bloqueo y cierre | `AutenticacionTest` | Aceptar credenciales válidas, limitar intentos y cerrar sesión | Aprobado en pruebas Laravel | No aplica (HTTP) | Aprobada |
+| INT-02 | Roles | Rutas y datos permitidos por rol | `ControlAccesoTest`, `PacienteTest` | Denegar operaciones no autorizadas y limitar agenda al odontólogo | Aprobado en pruebas Laravel | No aplica (HTTP) | Aprobada |
+| INT-03 | Base de datos | Esquema y relaciones principales | `BaseDatosTest` | Crear tablas y hacer cumplir unicidad y claves foráneas | Aprobado en pruebas Laravel | No aplica (HTTP) | Aprobada |
+| INT-04 | Pacientes | CRUD, búsqueda, estado y validaciones | `PacienteTest`, `PacienteValidacionTest` | Persistir datos válidos y conservar los originales ante errores | Aprobado en pruebas Laravel | No aplica (HTTP) | Aprobada |
+| INT-05 | Citas | CRUD, filtros, solapamiento y cancelación | `CitaTest` | Impedir conflictos y conservar citas canceladas | Aprobado en pruebas Laravel | No aplica (HTTP) | Aprobada |
+| INT-06 | Odontograma | Permisos, validación e historial | `OdontogramaTest` | Persistir cada cambio con el profesional autenticado y conservar historial | Aprobado en pruebas Laravel | No aplica (HTTP) | Aprobada |
+| INT-07 | Exportación de pacientes | Excel, filtros y control de rol | `PacienteExportacionTest` | Descargar XLSX con datos y filtros correctos | Aprobado en pruebas Laravel | No aplica (HTTP) | Aprobada |
+| INT-08 | Expediente | Anamnesis, carga, descarga y eliminación de archivo | `ExpedienteTratamientoReporteTest` | Persistir datos y archivos privados; denegar roles no autorizados | Aprobado en pruebas Laravel | No aplica (HTTP) | Aprobada |
+| INT-09 | Tratamientos | Alta, edición, evolución, validación y eliminación protegida | `ExpedienteTratamientoReporteTest` | Registrar historial clínico y no borrar tratamientos con evoluciones | Aprobado en pruebas Laravel | No aplica (HTTP) | Aprobada |
+| INT-10 | Reportes | Período, métricas, Excel, PDF y alcance por rol | `ExpedienteTratamientoReporteTest` | Filtrar por fecha, exportar y limitar al odontólogo autenticado | Aprobado en pruebas Laravel | No aplica (HTTP) | Aprobada |
+| MAN-01 | Interfaz adaptable | Navegadores de escritorio y móvil | Abrir login, dashboard, agenda, expedientes y reportes en Chrome, Firefox, Edge y Safari; revisar anchos móvil/tableta/escritorio | Vistas utilizables sin desbordamientos ni errores de interacción | No ejecutado en navegador real desde este entorno | Pendiente | Pendiente |
+| MAN-02 | Integración visual | Recorrido con roles reales y datos de prueba | Ejecutar manualmente altas, edición, baja, archivos y descargas con odontólogo y recepcionista | Flujo completo desde la interfaz, mensajes claros y permisos correctos | Cubierto parcialmente por pruebas HTTP; falta recorrido visual manual | Pendiente | Pendiente |
+
+Las pruebas automatizadas no sustituyen las verificaciones manuales de navegador indicadas. Actualizar las columnas de resultado, navegador y estado al completar estas últimas.

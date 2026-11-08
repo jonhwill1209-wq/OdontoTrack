@@ -1,47 +1,101 @@
 @extends('layouts.app')
-@section('titulo','Expediente clínico')
+
+@section('titulo', 'Expediente clínico')
+
 @section('content')
-<h1 class="h3">Expediente clínico</h1>
-<p>{{ $paciente->nombre_completo }} · Expediente #{{ $expediente->id_expediente }}</p>
-<div class="d-flex flex-wrap gap-2 mb-4"><a class="btn btn-outline-secondary" href="{{ route('pacientes.show',$paciente) }}">Volver al paciente</a><a class="btn btn-outline-primary" href="{{ route('odontograma.show',$paciente) }}">Abrir odontograma e historial</a></div>
-@if($errors->any())<div class="alert alert-danger" role="alert"><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
-<section class="card mb-4"><div class="card-body"><h2 class="h5">Anamnesis</h2>
-<form method="POST" action="{{ route('expedientes.anamnesis',$paciente) }}">@csrf @method('PUT')
-@foreach(['alergias'=>'Alergias','antecedentes'=>'Antecedentes','medicamentos'=>'Medicamentos'] as $campo=>$label)
-<label class="form-label" for="{{ $campo }}">{{ $label }}</label><textarea class="form-control mb-3" id="{{ $campo }}" name="{{ $campo }}" maxlength="5000">{{ old($campo,$expediente->anamnesis?->$campo) }}</textarea>
-@endforeach
-<button class="btn btn-primary">Guardar anamnesis</button></form></div></section>
-<section class="card mb-4"><div class="card-body"><h2 class="h5">Tratamientos y evolución clínica</h2>
-@forelse($expediente->tratamientos as $t)
-<article class="border rounded p-3 mb-3"><h3 class="h6">Tratamiento #{{ $t->id_tratamiento }} · {{ $t->estado }}</h3><p><strong>Diagnóstico:</strong> {{ $t->diagnostico }}</p><p><strong>Plan:</strong> {{ $t->plan }}</p>
-<details><summary>Editar tratamiento</summary><form method="POST" action="{{ route('expedientes.tratamientos.update',[$paciente,$t]) }}">@csrf @method('PUT') @include('expedientes.tratamiento-form',['t'=>$t])</form></details>
-<h4 class="h6 mt-3">Historial de evolución</h4>
-@forelse($t->evoluciones->sortByDesc('fecha_registro') as $e)
-<p>{{ $e->fecha_registro?->format('d/m/Y H:i') }} · {{ $e->odontologo?->usuario?->nombre }}<br>{{ $e->observacion }}</p>
-@if($e->id_odontologo === auth()->user()->odontologo->id_odontologo)
-<details class="mb-2"><summary>Editar observación propia</summary><form method="POST" action="{{ route('expedientes.evoluciones.update',[$paciente,$t,$e]) }}">@csrf @method('PUT')<label class="form-label">Observación<textarea class="form-control" name="observacion" maxlength="5000" required>{{ $e->observacion }}</textarea></label><button class="btn btn-outline-primary">Guardar corrección</button></form></details>
-@endif
-@empty<p class="text-muted">Sin evoluciones registradas.</p>@endforelse
-<form method="POST" action="{{ route('expedientes.evoluciones.store',[$paciente,$t]) }}">@csrf<label class="form-label w-100">Nueva evolución<textarea class="form-control" name="observacion" maxlength="5000" required>{{ old('observacion') }}</textarea></label><button class="btn btn-primary">Registrar evolución</button></form></article>
-@empty<p>No hay tratamientos registrados.</p>@endforelse
-<details><summary>Nuevo tratamiento</summary><form method="POST" action="{{ route('expedientes.tratamientos.store',$paciente) }}">@csrf @include('expedientes.tratamiento-form',['t'=>null])</form></details>
-</div></section>
-<section class="card"><div class="card-body"><h2 class="h5">Archivos clínicos</h2><p>Radiografías JPG o PNG y documentos PDF. Máximo 5 MB por archivo.</p>
-<form id="archivo-form" method="POST" enctype="multipart/form-data" action="{{ route('expedientes.archivos.store',$paciente) }}">@csrf
-<label class="form-label" for="archivo">Archivo</label><input class="form-control mb-2" id="archivo" name="archivo" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
-<label class="form-label" for="descripcion">Descripción</label><input class="form-control mb-3" id="descripcion" name="descripcion" maxlength="500" value="{{ old('descripcion') }}" required><button class="btn btn-primary">Subir archivo</button></form>
-<div class="table-responsive mt-3"><table class="table"><thead><tr><th>Archivo</th><th>Descripción</th><th>Fecha y autor</th><th>Tamaño</th><th>Consulta</th></tr></thead><tbody>
-@forelse($expediente->archivos->sortByDesc('fecha') as $a)<tr><td>{{ $a->nombre_original }}</td><td>{{ $a->descripcion }}</td><td>{{ $a->fecha?->format('d/m/Y H:i') }} · {{ $a->odontologo?->usuario?->nombre }}</td><td>{{ number_format($a->tamano/1024,1) }} KB</td><td><a href="{{ route('expedientes.archivos.show',[$paciente,$a]) }}" target="_blank" rel="noopener">Ver</a> · <a href="{{ route('expedientes.archivos.show',[$paciente,$a,'descargar'=>1]) }}">Descargar</a></td></tr>
-@empty<tr><td colspan="5">Sin archivos cargados.</td></tr>@endforelse
-</tbody></table></div></div></section>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h1 class="h2 mb-1">Expediente clínico</h1>
+        <p class="text-secondary mb-0">{{ $paciente->nombre_completo }} · Expediente #{{ $expediente->id_expediente }}</p>
+    </div>
+    <a href="{{ route('pacientes.show', $paciente) }}" class="btn btn-outline-secondary">Volver al paciente</a>
+</div>
+
+<section class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Anamnesis</h2></div>
+    <div class="card-body">
+        <form method="POST" action="{{ route('expedientes.anamnesis.update', $expediente) }}">
+            @csrf
+            @method('PUT')
+            <div class="row g-3">
+                @foreach (['alergias' => 'Alergias', 'antecedentes' => 'Antecedentes', 'medicamentos' => 'Medicamentos actuales'] as $campo => $etiqueta)
+                    <div class="col-md-4">
+                        <label for="{{ $campo }}" class="form-label">{{ $etiqueta }}</label>
+                        <textarea id="{{ $campo }}" name="{{ $campo }}" rows="4" maxlength="10000"
+                                  class="form-control @error($campo) is-invalid @enderror">{{ old($campo, $expediente->anamnesis?->$campo) }}</textarea>
+                        @error($campo)<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                @endforeach
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Guardar anamnesis</button>
+        </form>
+    </div>
+</section>
+
+<section class="card mb-4">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h2 class="h5 mb-0">Tratamientos</h2>
+        <a href="{{ route('tratamientos.create', $expediente) }}" class="btn btn-sm btn-primary">Nuevo tratamiento</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead><tr><th>Diagnóstico</th><th>Plan</th><th>Inicio</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+            @forelse ($expediente->tratamientos as $tratamiento)
+                <tr>
+                    <td>{{ \Illuminate\Support\Str::limit($tratamiento->diagnostico, 90) }}</td>
+                    <td>{{ \Illuminate\Support\Str::limit($tratamiento->plan, 90) }}</td>
+                    <td>{{ $tratamiento->fecha_inicio?->format('d/m/Y') }}</td>
+                    <td><span class="badge text-bg-info">{{ str_replace('_', ' ', ucfirst(strtolower($tratamiento->estado))) }}</span></td>
+                    <td><a href="{{ route('tratamientos.show', $tratamiento) }}" class="btn btn-sm btn-outline-primary">Ver detalle</a></td>
+                </tr>
+            @empty
+                <tr><td colspan="5" class="text-center text-secondary py-4">Aún no hay tratamientos registrados.</td></tr>
+            @endforelse
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="card">
+    <div class="card-header"><h2 class="h5 mb-0">Documentos e imágenes</h2></div>
+    <div class="card-body">
+        <form method="POST" action="{{ route('expedientes.archivos.store', $expediente) }}" enctype="multipart/form-data" class="row g-3 align-items-end mb-4">
+            @csrf
+            <div class="col-md-8">
+                <label for="archivo" class="form-label">Archivo (PDF, JPG o PNG; máximo 10 MB)</label>
+                <input id="archivo" name="archivo" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                       required class="form-control @error('archivo') is-invalid @enderror">
+                @error('archivo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div class="col-md-4"><button type="submit" class="btn btn-primary">Cargar archivo</button></div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>Nombre</th><th>Tipo</th><th>Tamaño</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody>
+                @forelse ($expediente->archivos->sortByDesc('subido_en') as $archivo)
+                    <tr>
+                        <td>{{ $archivo->nombre_original }}</td>
+                        <td>{{ $archivo->mime_type }}</td>
+                        <td>{{ number_format($archivo->tamano / 1024, 1) }} KB</td>
+                        <td>{{ $archivo->subido_en?->format('d/m/Y H:i') }}</td>
+                        <td class="d-flex gap-2">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ route('expedientes.archivos.download', $archivo) }}">Consultar</a>
+                            <form method="POST" action="{{ route('expedientes.archivos.destroy', $archivo) }}"
+                                  onsubmit="return confirm('¿Eliminar este archivo del expediente?');">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="5" class="text-center text-secondary py-4">No hay archivos cargados.</td></tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 @endsection
-@push('scripts')
-<script>
-document.getElementById('archivo').addEventListener('change', function() {
- const f=this.files[0]; this.setCustomValidity('');
- if(f && (!/\.(jpe?g|png|pdf)$/i.test(f.name) || !['image/jpeg','image/png','application/pdf'].includes(f.type))) this.setCustomValidity('Selecciona un JPG, PNG o PDF.');
- if(f && f.size>5*1024*1024) this.setCustomValidity('El archivo supera los 5 MB.');
- this.reportValidity();
-});
-</script>
-@endpush

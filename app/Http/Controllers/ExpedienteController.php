@@ -2,55 +2,137 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ClinicoRequest;
-use App\Models\EvolucionClinica;
+use App\Models\Expediente;
+use App\Models\ExpedienteArchivo;
 use App\Models\Paciente;
-use App\Models\Tratamiento;
-use App\Services\ExpedienteService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExpedienteController extends Controller
 {
-    public function show(Request $request, Paciente $paciente, ExpedienteService $service)
+    public function index(Request $request): View
     {
-        abort_unless($request->user()?->odontologo !== null, 403);
-        $expediente = $service->obtenerOCrearPorPaciente($paciente);
-        $expediente->load(['anamnesis', 'tratamientos.evoluciones.odontologo.usuario', 'archivos.odontologo.usuario']);
+        $filtros = $request->validate([
+            'buscar' => ['nullable', 'string', 'max:100'],
+        ]);
+        $buscar = trim($filtros['buscar'] ?? '');
+
+        $pacientes = Paciente::query()
+            ->when($buscar !== '', function ($query) use ($buscar) {
+                $query->where('nombres', 'like', "%{$buscar}%")
+                    ->orWhere('apellidos', 'like', "%{$buscar}%");
+            })
+            ->orderBy('apellidos')
+            ->orderBy('nombres')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('expedientes.index', compact('pacientes', 'buscar'));
+    }
+
+    public function show(Paciente $paciente): View
+    {
+        $expediente = Expediente::firstOrCreate([
+            'id_paciente' => $paciente->id_paciente,
+        ]);
+        $expediente->load([
+            'anamnesis',
+            'tratamientos.evoluciones.odontologo.usuario',
+            'archivos',
+        ]);
 
         return view('expedientes.show', compact('paciente', 'expediente'));
     }
 
-    public function anamnesis(ClinicoRequest $request, Paciente $paciente, ExpedienteService $service)
+    public function actualizarAnamnesis(Request $request, Expediente $expediente): RedirectResponse
     {
-        $service->obtenerOCrearPorPaciente($paciente)->anamnesis()->updateOrCreate([], array_merge($request->validated(), ['actualizado_en' => now()]));
+        $datos = $request->validate([
+            'alergias' => ['nullable', 'string', 'max:10000'],
+            'antecedentes' => ['nullable', 'string', 'max:10000'],
+            'medicamentos' => ['nullable', 'string', 'max:10000'],
+        ], [
+            'string' => 'El campo :attribute debe ser texto.',
+            'max' => 'El campo :attribute no debe superar :max caracteres.',
+        ]);
 
-        return back()->with('exito', 'Anamnesis guardada.');
+        $expediente->anamnesis()->updateOrCreate(
+            ['id_expediente' => $expediente->id_expediente],
+            $datos
+        );
+
+        return back()->with('exito', 'Anamnesis guardada correctamente.');
     }
 
-    public function tratamiento(ClinicoRequest $request, Paciente $paciente, ExpedienteService $service, ?Tratamiento $tratamiento = null)
+    public function subirArchivo(Request $request, Expediente $expediente): RedirectResponse
     {
-        $expediente = $service->obtenerOCrearPorPaciente($paciente);
-        if ($tratamiento) {
-            abort_unless($tratamiento->id_expediente === $expediente->id_expediente, 404);
-            $tratamiento->update($request->validated());
-        } else {
-            $expediente->tratamientos()->create($request->validated());
+        $datos = $request->validate([
+            'archivo' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+        ], [
+            'archivo.required' => 'Selecciona un documento o una imagen.',
+            'archivo.file' => 'El archivo seleccionado no es válido.',
+            'archivo.mimes' => 'Solo se permiten archivos PDF, JPG o PNG.',
+            'archivo.max' => 'El archivo no debe superar 10 MB.',
+        ]);
+
+        $archivo = $datos['archivo'];
+        $nombreAlmacenado = Str::uuid().'.'.$archivo->extension();
+        $ruta = $archivo->storeAs(
+            'expedientes/'.$expediente->id_expediente,
+            $nombreAlmacenado,
+            'local'
+        );
+
+        if (! $ruta) {
+            throw ValidationException::withMessages([
+                'archivo' => 'No fue posible almacenar el archivo. Intenta nuevamente.',
+            ]);
         }
 
-        return back()->with('exito', 'Tratamiento guardado.');
+        try {
+            ExpedienteArchivo::create([
+                'id_expediente' => $expediente->id_expediente,
+                'nombre_original' => mb_substr($archivo->getClientOriginalName(), 0, 255),
+                'ruta' => $ruta,
+                'mime_type' => $archivo->getMimeType() ?: 'application/octet-stream',
+                'tamano' => $archivo->getSize(),
+            ]);
+        } catch (\Throwable $exception) {
+            Storage::disk('local')->delete($ruta);
+            throw $exception;
+        }
+
+        return back()->with('exito', 'Archivo cargado correctamente.');
     }
 
-    public function evolucion(ClinicoRequest $request, Paciente $paciente, Tratamiento $tratamiento, ?EvolucionClinica $evolucion = null)
+    public function descargarArchivo(ExpedienteArchivo $archivo): StreamedResponse
     {
-        abort_unless($tratamiento->expediente->id_paciente === $paciente->id_paciente, 404);
-        if ($evolucion) {
-            abort_unless($evolucion->id_tratamiento === $tratamiento->id_tratamiento, 404);
-            abort_unless($evolucion->id_odontologo === $request->user()->odontologo->id_odontologo, 403);
-            $evolucion->update($request->validated());
-        } else {
-            $tratamiento->evoluciones()->create($request->validated() + ['id_odontologo' => $request->user()->odontologo->id_odontologo]);
+        abort_unless(Storage::disk('local')->exists($archivo->ruta), 404, 'El archivo ya no está disponible.');
+
+        return Storage::disk('local')->download($archivo->ruta, $archivo->nombre_original);
+    }
+
+    public function eliminarArchivo(ExpedienteArchivo $archivo): RedirectResponse
+    {
+        $expediente = $archivo->expediente;
+        $disco = Storage::disk('local');
+
+        abort_unless($disco->exists($archivo->ruta), 404, 'El archivo ya no está disponible.');
+
+        if (! $disco->delete($archivo->ruta)) {
+            throw ValidationException::withMessages([
+                'archivo' => 'No fue posible eliminar el archivo. Intenta nuevamente.',
+            ]);
         }
 
-        return back()->with('exito','Evolución guardada.');
+        $archivo->delete();
+
+        return redirect()
+            ->route('expedientes.show', $expediente->paciente)
+            ->with('exito', 'Archivo eliminado correctamente.');
     }
 }
