@@ -3,8 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Usuario;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class AutenticacionTest extends TestCase
@@ -131,5 +135,67 @@ class AutenticacionTest extends TestCase
         $this->get('/dev-login/' . $usuario->correo)->assertNotFound();
 
         $this->assertGuest();
+    }
+
+    public function test_acepta_el_correo_escrito_con_mayusculas_y_espacios(): void
+    {
+        $usuario = $this->crearUsuario();
+
+        $this->intentarLogin('  Recepcion@Prueba.TEST ', self::CLAVE)->assertRedirect(route('dashboard'));
+
+        $this->assertAuthenticatedAs($usuario);
+    }
+
+    public function test_la_cuenta_desactivada_explica_el_motivo_solo_con_la_clave_correcta(): void
+    {
+        $usuario = $this->crearUsuario(activo: false);
+
+        $this->intentarLogin($usuario->correo, 'incorrecta')
+            ->assertSessionHasErrors(['correo' => 'Credenciales inválidas.']);
+
+        $this->intentarLogin($usuario->correo, self::CLAVE)
+            ->assertSessionHasErrors(['correo' => 'Tu cuenta está desactivada. Comunícate con administración.']);
+
+        $this->assertGuest();
+    }
+
+    public function test_advierte_cuando_quedan_pocos_intentos(): void
+    {
+        $usuario = $this->crearUsuario();
+
+        $this->intentarLogin($usuario->correo, 'incorrecta')->assertSessionMissing('advertencia');
+        $this->intentarLogin($usuario->correo, 'incorrecta');
+
+        $this->intentarLogin($usuario->correo, 'incorrecta')
+            ->assertSessionHas('advertencia', 'Te quedan 2 intentos antes de un bloqueo temporal.');
+    }
+
+    public function test_un_invitado_redirigido_ve_por_que_debe_iniciar_sesion(): void
+    {
+        $this->get(route('dashboard'))->assertRedirect(route('login'));
+
+        $this->get(route('login'))->assertSee('Inicia sesión para continuar');
+    }
+
+    public function test_si_el_formulario_de_acceso_expira_vuelve_al_login_con_aviso(): void
+    {
+        $peticion = Request::create('/login', 'POST');
+        $peticion->setRouteResolver(fn () => Route::getRoutes()->getByName('login.attempt'));
+
+        $respuesta = app(ExceptionHandler::class)->render($peticion, new TokenMismatchException('CSRF token mismatch.'));
+
+        $this->assertTrue($respuesta->isRedirect(route('login')));
+        $this->assertSame('La página estuvo inactiva demasiado tiempo. Vuelve a intentarlo.', session('advertencia'));
+    }
+
+    public function test_otros_formularios_expirados_muestran_la_pagina_419(): void
+    {
+        $peticion = Request::create('/pacientes', 'POST');
+        $peticion->setRouteResolver(fn () => Route::getRoutes()->getByName('pacientes.store'));
+
+        $respuesta = app(ExceptionHandler::class)->render($peticion, new TokenMismatchException('CSRF token mismatch.'));
+
+        $this->assertSame(419, $respuesta->getStatusCode());
+        $this->assertStringContainsString('La página expiró', $respuesta->getContent());
     }
 }

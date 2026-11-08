@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -22,5 +23,16 @@ class Odontologo extends Model
     public function citas(): HasMany
     {
         return $this->hasMany(Cita::class, 'id_odontologo', 'id_odontologo');
+    }
+
+    public function citasPendientes(): HasMany
+    {
+        return $this->citas()->where('cita.estado', Cita::PROGRAMADA)->where('cita.inicio', '>=', now());
+    }
+
+    //Solo profesionales cuya cuenta de acceso sigue activa
+    public function scopeActivos(Builder $query): Builder
+    {
+        return $query->whereHas('usuario', fn (Builder $usuario) => $usuario->where('activo', true));
     }
 }

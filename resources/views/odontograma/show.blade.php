@@ -3,6 +3,7 @@
 @section('titulo', 'Odontograma')
 
 @section('content')
+<a class="btn btn-outline-primary mb-3" href="{{ route('expedientes.show', $paciente) }}">Volver al expediente clínico</a>
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
     <div>
         <h1 class="h3 mb-1">Odontograma</h1>

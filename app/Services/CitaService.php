@@ -31,6 +31,7 @@ class CitaService
             $fin = Carbon::parse($datos['fin']);
 
             $this->validarIntervalo($inicio, $fin);
+            $this->validarNoPasada($inicio);
             $this->bloquearRecursos($idOdontologo, $idConsultorio);
             $this->asegurarDisponibilidad($idOdontologo, $idConsultorio, $inicio, $fin);
 
@@ -55,6 +56,10 @@ class CitaService
             $fin = Carbon::parse($datos['fin']);
 
             $this->validarIntervalo($inicio, $fin);
+            // Se permite editar el motivo de una cita de hoy que ya empezó, pero no moverla al pasado
+            if (! $inicio->equalTo($cita->inicio)) {
+                $this->validarNoPasada($inicio);
+            }
             $this->bloquearRecursos($idOdontologo, $idConsultorio);
             $this->asegurarDisponibilidad($idOdontologo, $idConsultorio, $inicio, $fin, $cita->id_cita);
 
@@ -77,6 +82,34 @@ class CitaService
         $cita->update(['estado' => Cita::CANCELADA]);
 
         return $cita;
+    }
+
+    // Mover o redimensionar desde el calendario: solo cambia el horario
+    public function reprogramar(Cita $cita, Carbon $inicio, Carbon $fin): Cita
+    {
+        return $this->actualizar($cita, [
+            'id_paciente' => $cita->id_paciente,
+            'id_odontologo' => $cita->id_odontologo,
+            'id_consultorio' => $cita->id_consultorio,
+            'inicio' => $inicio,
+            'fin' => $fin,
+            'motivo' => $cita->motivo,
+        ]);
+    }
+
+    // Solo una cita PROGRAMADA puede pasar a REALIZADA
+    public function marcarRealizada(Cita $cita): Cita
+    {
+        $cita->update(['estado' => Cita::REALIZADA]);
+
+        return $cita;
+    }
+
+    private function validarNoPasada(Carbon $inicio): void
+    {
+        if ($inicio->lessThan(now())) {
+            throw new InvalidArgumentException('No se pueden agendar citas en fechas u horas pasadas.');
+        }
     }
 
     private function validarIntervalo(Carbon $inicio, Carbon $fin): void

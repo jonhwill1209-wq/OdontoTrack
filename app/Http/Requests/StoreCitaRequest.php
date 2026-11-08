@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Cita;
+use Carbon\Carbon;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -30,10 +32,31 @@ class StoreCitaRequest extends FormRequest
                 'required',
                 Rule::exists('consultorio', 'id_consultorio')->where('activo', true),
             ],
-            'inicio' => ['required', 'date'],
+            'inicio' => ['required', 'date', $this->reglaNoPasada()],
             'fin' => ['required', 'date', 'after:inicio'],
             'motivo' => ['nullable', 'string', 'max:250'],
         ];
+    }
+
+    // No se agenda en el pasado. Al editar, solo se exige si el inicio cambió
+    private function reglaNoPasada(): \Closure
+    {
+        return function (string $atributo, mixed $valor, \Closure $fallar): void {
+            try {
+                $inicio = Carbon::parse($valor);
+            } catch (\Throwable) {
+                return; // la regla 'date' ya reporta el formato inválido
+            }
+
+            $cita = $this->route('cita');
+            if ($cita instanceof Cita && $inicio->equalTo($cita->inicio)) {
+                return;
+            }
+
+            if ($inicio->lessThan(now())) {
+                $fallar('No se pueden agendar citas en fechas u horas pasadas.');
+            }
+        };
     }
 
     public function messages(): array

@@ -163,4 +163,164 @@ class CitaTest extends TestCase
 
         $this->assertDatabaseHas('cita', ['id_cita' => $cita->id_cita, 'estado' => Cita::CANCELADA]);
     }
+
+    private function recepcion(): Usuario
+    {
+        return Usuario::create([
+            'nombre' => 'Recepción test',
+            'correo' => 'recep-' . uniqid() . '@prueba.test',
+            'clave_hash' => Hash::make('Prueba2026!'),
+            'rol' => 'RECEPCIONISTA',
+            'activo' => true,
+        ]);
+    }
+
+    public function test_no_permite_agendar_en_fecha_pasada(): void
+    {
+        $datos = $this->datos($this->odontologoA, $this->consultorioA);
+        $ayer = Carbon::now()->subDay()->format('Y-m-d');
+        $datos['inicio'] = "$ayer 09:00:00";
+        $datos['fin'] = "$ayer 10:00:00";
+
+        $this->actingAs($this->recepcion())
+            ->from(route('citas.create'))
+            ->post(route('citas.store'), $datos)
+            ->assertRedirect(route('citas.create'))
+            ->assertSessionHasErrors('inicio');
+
+        $this->assertDatabaseMissing('cita', ['inicio' => "$ayer 09:00:00"]);
+    }
+
+    public function test_servicio_rechaza_fecha_pasada(): void
+    {
+        $datos = $this->datos($this->odontologoA, $this->consultorioA);
+        $ayer = Carbon::now()->subDay()->format('Y-m-d');
+        $datos['inicio'] = "$ayer 09:00:00";
+        $datos['fin'] = "$ayer 10:00:00";
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->servicio->crear($datos);
+    }
+
+    public function test_fin_debe_ser_posterior_al_inicio(): void
+    {
+        $datos = $this->datos($this->odontologoA, $this->consultorioA, '10:00', '09:00');
+
+        $this->actingAs($this->recepcion())
+            ->from(route('citas.create'))
+            ->post(route('citas.store'), $datos)
+            ->assertSessionHasErrors('fin');
+    }
+
+    public function test_marcar_realizada_cambia_el_estado(): void
+    {
+        $cita = $this->servicio->crear($this->datos($this->odontologoA, $this->consultorioA));
+
+        $this->actingAs($this->odontologoA->usuario)
+            ->patch(route('citas.realizar', $cita))
+            ->assertRedirect(route('citas.index'))
+            ->assertSessionHas('exito');
+
+        $this->assertDatabaseHas('cita', ['id_cita' => $cita->id_cita, 'estado' => Cita::REALIZADA]);
+    }
+
+    public function test_cita_realizada_no_se_puede_cancelar_ni_realizar_de_nuevo(): void
+    {
+        $cita = $this->servicio->crear($this->datos($this->odontologoA, $this->consultorioA));
+        $this->servicio->marcarRealizada($cita);
+
+        $this->actingAs($this->recepcion())
+            ->patch(route('citas.cancelar', $cita))
+            ->assertSessionHasErrors('estado');
+
+        $this->assertDatabaseHas('cita', ['id_cita' => $cita->id_cita, 'estado' => Cita::REALIZADA]);
+    }
+
+    public function test_mover_cita_actualiza_el_horario(): void
+    {
+        $cita = $this->servicio->crear($this->datos($this->odontologoA, $this->consultorioA));
+        $dia = Carbon::now()->addDays(5)->format('Y-m-d');
+
+        $this->actingAs($this->recepcion())
+            ->patchJson(route('citas.mover', $cita), [
+                'inicio' => Carbon::parse("$dia 14:00:00")->toIso8601String(),
+                'fin' => Carbon::parse("$dia 15:00:00")->toIso8601String(),
+            ])
+            ->assertOk()
+            ->assertJsonPath('mensaje', 'Cita reprogramada correctamente.');
+
+        $this->assertDatabaseHas('cita', ['id_cita' => $cita->id_cita, 'inicio' => "$dia 14:00:00"]);
+    }
+
+    public function test_mover_cita_a_horario_ocupado_responde_422_y_no_cambia(): void
+    {
+        $this->servicio->crear($this->datos($this->odontologoA, $this->consultorioA, '09:00', '10:00'));
+        $otra = $this->servicio->crear($this->datos($this->odontologoB, $this->consultorioB, '11:00', '12:00'));
+        $dia = Carbon::now()->addDays(5)->format('Y-m-d');
+
+        $this->actingAs($this->recepcion())
+            ->patchJson(route('citas.mover', $otra), [
+                'inicio' => Carbon::parse("$dia 09:30:00")->toIso8601String(),
+                'fin' => Carbon::parse("$dia 10:30:00")->toIso8601String(),
+            ])
+            ->assertStatus(422)
+            ->assertJsonStructure(['mensaje']);
+
+        $this->assertDatabaseHas('cita', ['id_cita' => $otra->id_cita, 'inicio' => "$dia 11:00:00"]);
+    }
+
+    public function test_mover_cita_al_pasado_responde_422(): void
+    {
+        $cita = $this->servicio->crear($this->datos($this->odontologoA, $this->consultorioA));
+        $ayer = Carbon::now()->subDay()->format('Y-m-d');
+
+        $this->actingAs($this->recepcion())
+            ->patchJson(route('citas.mover', $cita), [
+                'inicio' => Carbon::parse("$ayer 09:00:00")->toIso8601String(),
+                'fin' => Carbon::parse("$ayer 10:00:00")->toIso8601String(),
+            ])
+            ->assertStatus(422);
+    }
+
+    public function test_no_se_mueve_una_cita_cancelada(): void
+    {
+        $cita = $this->servicio->crear($this->datos($this->odontologoA, $this->consultorioA));
+        $this->servicio->cancelar($cita);
+        $dia = Carbon::now()->addDays(6)->format('Y-m-d');
+
+        $this->actingAs($this->recepcion())
+            ->patchJson(route('citas.mover', $cita), [
+                'inicio' => "$dia 09:00:00",
+                'fin' => "$dia 10:00:00",
+            ])
+            ->assertStatus(422);
+    }
+
+    public function test_eventos_se_filtran_por_odontologo_y_consultorio(): void
+    {
+        $this->servicio->crear($this->datos($this->odontologoA, $this->consultorioA, '09:00', '10:00'));
+        $this->servicio->crear($this->datos($this->odontologoB, $this->consultorioB, '09:00', '10:00'));
+
+        $usuario = $this->recepcion();
+
+        $porOdontologo = $this->actingAs($usuario)
+            ->getJson(route('citas.eventos', ['id_odontologo' => $this->odontologoA->id_odontologo]))
+            ->assertOk();
+        $this->assertCount(1, $porOdontologo->json());
+
+        $porConsultorio = $this->actingAs($usuario)
+            ->getJson(route('citas.eventos', ['id_consultorio' => $this->consultorioB->id_consultorio]))
+            ->assertOk();
+        $this->assertCount(1, $porConsultorio->json());
+        $this->assertNotNull($porConsultorio->json()[0]['extendedProps']['url_realizar']);
+    }
+
+    public function test_invitado_no_puede_usar_las_rutas_de_citas(): void
+    {
+        $cita = $this->servicio->crear($this->datos($this->odontologoA, $this->consultorioA));
+
+        $this->patch(route('citas.realizar', $cita))->assertRedirect(route('login'));
+        $this->patchJson(route('citas.mover', $cita), [])->assertUnauthorized();
+        $this->get(route('citas.index'))->assertRedirect(route('login'));
+    }
 }

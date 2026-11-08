@@ -31,3 +31,11 @@
         @endif
     </div>
 @endif
+
+@if (session('advertencia'))
+    <div class="alert alert-warning alert-dismissible ot-alerta" role="alert">
+        <i class="bi bi-exclamation-diamond-fill" aria-hidden="true"></i>
+        <div>{{ session('advertencia') }}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+@endif

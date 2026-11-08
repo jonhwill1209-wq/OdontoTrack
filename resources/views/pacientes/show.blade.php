@@ -3,6 +3,9 @@
 @section('titulo', 'Ficha del paciente')
 
 @section('content')
+@if(auth()->user()->rol === 'ODONTOLOGO' && auth()->user()->odontologo)
+<a class="btn btn-primary mb-3" href="{{ route('expedientes.show', $paciente) }}">Abrir expediente clínico</a>
+@endif
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
     <h1 class="h3 mb-0">Ficha del paciente</h1>
 
