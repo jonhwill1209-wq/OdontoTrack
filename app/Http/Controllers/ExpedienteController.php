@@ -71,7 +71,12 @@ class ExpedienteController extends Controller
     public function subirArchivo(Request $request, Expediente $expediente): RedirectResponse
     {
         $datos = $request->validate([
-            'archivo' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'archivo' => [
+                'required',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:10240',
+            ],
         ], [
             'archivo.required' => 'Selecciona un documento o una imagen.',
             'archivo.file' => 'El archivo seleccionado no es válido.',
@@ -111,9 +116,17 @@ class ExpedienteController extends Controller
 
     public function descargarArchivo(ExpedienteArchivo $archivo): StreamedResponse
     {
-        abort_unless(Storage::disk('local')->exists($archivo->ruta), 404, 'El archivo ya no está disponible.');
+        $disco = Storage::disk('local');
+        abort_unless($disco->exists($archivo->ruta), 404, 'El archivo ya no está disponible.');
 
-        return Storage::disk('local')->download($archivo->ruta, $archivo->nombre_original);
+        $headers = [
+            'Content-Type' => $archivo->mime_type,
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-store',
+            'Content-Security-Policy' => "sandbox; default-src 'none'",
+        ];
+
+        return $disco->download($archivo->ruta, $archivo->nombre_original, $headers);
     }
 
     public function eliminarArchivo(ExpedienteArchivo $archivo): RedirectResponse

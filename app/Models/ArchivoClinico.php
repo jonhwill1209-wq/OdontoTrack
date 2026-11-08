@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ArchivoClinico extends Model
 {
@@ -17,12 +18,12 @@ class ArchivoClinico extends Model
         return ['fecha' => 'datetime'];
     }
 
-    public function expediente()
+    public function expediente(): BelongsTo
     {
         return $this->belongsTo(Expediente::class, 'id_expediente', 'id_expediente');
     }
 
-    public function odontologo()
+    public function odontologo(): BelongsTo
     {
         return $this->belongsTo(Odontologo::class, 'id_odontologo', 'id_odontologo');
     }
