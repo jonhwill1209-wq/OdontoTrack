@@ -26,7 +26,7 @@ Revalidación posterior de Usuarios: `php artisan test --filter=UsuarioTest` - *
 | CP-08 | Interfaz | Visualización móvil | Abrir el panel desde un teléfono conectado a la misma red | El contenido se adapta sin cortes ni errores | Panel abierto; menú y tarjetas visibles | Chrome Android | Aprobado |
 | CP-09 | Usuarios | Revalidar menú y nombres con mayúsculas | Iniciar como Recepcionista, abrir Usuarios desde Administración y crear Recepcion QA Dos | El menú se muestra y el usuario con mayúsculas se crea sin errores | Menú Administración visible; usuario creado correctamente | Firefox | Aprobado |
 | CP-10 | Compatibilidad | Recorrido en navegador adicional | Revisar login, dashboard, agenda, expedientes y reportes en otro navegador de escritorio | Vistas utilizables sin errores de interacción | Pendiente de ejecución | Edge o Chrome | Pendiente |
-
+| CP-10 | Compatibilidad | Recorrido en Firefox | Abrir inicio de sesión, dashboard, agenda y reportes en Firefox | Las vistas cargan sin errores de interacción | Todas las pantallas verificadas cargaron correctamente | Firefox | Aprobado |
 ## Pendientes de cierre
 
 - Corregir y revalidar `DEF-10`: error al abrir expediente clínico por tabla `expediente_archivo` faltante.
