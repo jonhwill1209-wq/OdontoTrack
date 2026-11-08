@@ -9,6 +9,7 @@
 | DEF-05 | La matriz de pruebas y el registro de defectos estaban vacíos. | QA / documentación | Equipo de desarrollo | Media | Corregido; contiene evidencia automatizada y pendientes manuales |
 | DEF-06 | No hay evidencia de comprobación en navegadores distintos ni en varias resoluciones. | QA / responsive | QA / equipo de desarrollo | Media | Pendiente; requiere ejecución manual en navegador |
 | DEF-07 | La plantilla de rutas/vistas de usuarios está vacía y no existe un rol administrador definido en el alcance actual. | Administración de usuarios | Product owner / equipo | Baja | Pendiente de decisión de alcance; no se habilitó gestión de cuentas que permita elevar privilegios |
+| DEF-03 | El campo Nombre completo rechaza letras mayúsculas aunque el valor contiene únicamente letras y espacios | Usuarios | Persona 2 | Media | Pendiente |
 
 ## Criterios de cierre
 
