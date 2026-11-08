@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 //Reglas compartidas por los formularios de usuarios, odontólogos y Mi cuenta
 class ReglasUsuario
 {
-    public const PATRON_NOMBRE = '/^\p{L}[\p{L}\p{M}.\'\- ]*$/u';
+    public const PATRON_NOMBRE = '/^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ.\'\- ]*$/u';
     public const PATRON_CORREO = '/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/';
     public const PATRON_CLAVE = '/^(?=.*\p{Ll})(?=.*\p{Lu})(?=.*\d)(?=.*[^\p{L}\d\s])\S{8,64}$/u';
     public const PATRON_COLEGIADO = '/^[A-Z0-9][A-Z0-9\-]{2,39}$/';

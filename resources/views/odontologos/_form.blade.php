@@ -11,7 +11,7 @@
         <input type="text" id="nombre" name="nombre" value="{{ old('nombre', $usuario->nombre) }}"
                class="form-control @error('nombre') is-invalid @enderror"
                required minlength="3" maxlength="100" autocomplete="name" placeholder="Dra. Ana Martínez"
-               pattern="\p{L}[\p{L}\p{M}.'\- ]*"
+               pattern="[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ.'\- ]*"
                data-msg-requerido="Ingresa el nombre completo."
                data-msg-formato="El nombre solo puede contener letras, espacios, puntos, apóstrofos y guiones.">
         <div id="nombre-error" class="invalid-feedback">@error('nombre'){{ $message }}@enderror</div>

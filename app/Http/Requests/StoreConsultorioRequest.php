@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 
 class StoreConsultorioRequest extends FormRequest
 {
-    public const PATRON_NOMBRE = '/^[\p{L}\p{N}][\p{L}\p{M}\p{N} .#\-]*$/u';
+    public const PATRON_NOMBRE = '/^[A-Za-zÀ-ÖØ-öø-ÿ0-9][A-Za-zÀ-ÖØ-öø-ÿ0-9 .#\-]*$/u';
 
     public function authorize(): bool
     {

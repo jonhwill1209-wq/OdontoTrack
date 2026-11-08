@@ -8,14 +8,28 @@
         ['ruta' => 'expedientes.index', 'texto' => 'Expedientes', 'icono' => 'bi-folder2-open', 'roles' => ['ODONTOLOGO']],
         ['ruta' => 'odontograma.index', 'texto' => 'Odontograma', 'icono' => 'bi-grid-3x3-gap', 'roles' => ['ODONTOLOGO']],
         ['ruta' => 'reportes.index', 'texto' => 'Reportes', 'icono' => 'bi-bar-chart', 'roles' => ['RECEPCIONISTA', 'ODONTOLOGO']],
+        ['ruta' => 'usuarios.index', 'texto' => 'Usuarios', 'icono' => 'bi-person-gear', 'roles' => ['RECEPCIONISTA'], 'seccion' => 'Administración'],
+        ['ruta' => 'odontologos.index', 'texto' => 'Odontólogos', 'icono' => 'bi-person-badge', 'roles' => ['RECEPCIONISTA'], 'seccion' => 'Administración'],
+        ['ruta' => 'consultorios.index', 'texto' => 'Consultorios', 'icono' => 'bi-door-open', 'roles' => ['RECEPCIONISTA'], 'seccion' => 'Administración'],
+        ['ruta' => 'cuenta.edit', 'texto' => 'Mi cuenta', 'icono' => 'bi-person-lock', 'roles' => ['RECEPCIONISTA', 'ODONTOLOGO'], 'seccion' => 'Cuenta'],
     ];
+
+    $usuarioActual = auth()->user();
+    $visibles = array_filter($opciones, fn ($opcion) => Route::has($opcion['ruta'])
+        && in_array($usuarioActual->rol, $opcion['roles'], true)
+        && ! (in_array($opcion['ruta'], $requierePerfilOdontologo, true) && $usuarioActual->esOdontologo() && $usuarioActual->odontologo === null));
+    $seccionAnterior = null;
 @endphp
 
 <ul class="ot-menu">
-    @foreach ($opciones as $opcion)
-        @continue(! Route::has($opcion['ruta']) || ! in_array(auth()->user()->rol, $opcion['roles'], true))
-        @continue(in_array($opcion['ruta'], $requierePerfilOdontologo, true) && auth()->user()->esOdontologo() && auth()->user()->odontologo === null)
+    @foreach ($visibles as $opcion)
+        @php($seccion = $opcion['seccion'] ?? null)
 
+        @if ($seccion && $seccion !== $seccionAnterior)
+            <li class="px-3 pt-3 pb-1 small text-uppercase fw-semibold text-secondary" role="presentation">{{ $seccion }}</li>
+        @endif
+
+        @php($seccionAnterior = $seccion)
         @php($modulo = Str::before($opcion['ruta'], '.'))
         @php($activo = request()->routeIs($modulo, $modulo . '.*'))
 
