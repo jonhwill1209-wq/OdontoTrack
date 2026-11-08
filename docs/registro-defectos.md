@@ -10,6 +10,8 @@
 | DEF-06 | No hay evidencia de comprobación en navegadores distintos ni en varias resoluciones. | QA / responsive | QA / equipo de desarrollo | Media | Pendiente; requiere ejecución manual en navegador |
 | DEF-07 | La plantilla de rutas/vistas de usuarios está vacía y no existe un rol administrador definido en el alcance actual. | Administración de usuarios | Product owner / equipo | Baja | Pendiente de decisión de alcance; no se habilitó gestión de cuentas que permita elevar privilegios |
 | DEF-03 | El campo Nombre completo rechaza letras mayúsculas aunque el valor contiene únicamente letras y espacios | Usuarios | Persona 2 | Media | Pendiente |
+| DEF-04 | Al abrir un expediente clínico ocurre Error 500 porque no existe la tabla expediente_archivo | Expedientes y archivos | Persona 5 | Alta | Pendiente |
+
 
 ## Criterios de cierre
 
