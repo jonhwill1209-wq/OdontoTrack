@@ -2,8 +2,7 @@
 
 ## Evidencia automatizada
 
-Ejecución registrada: `php artisan test --compact` — **60 pruebas aprobadas, 426 aserciones** (suite del 7 de noviembre de 2026).
-
+Ejecución registrada: `php artisan test` — **125 pruebas aprobadas, 941 aserciones** (suite del 7 de noviembre de 2026).
 | ID | Módulo | Caso de prueba | Pasos / cobertura | Resultado esperado | Resultado obtenido | Navegador | Estado |
 |---|---|---|---|---|---|---|---|
 | INT-01 | Autenticación | Inicio de sesión, bloqueo y cierre | `AutenticacionTest` | Aceptar credenciales válidas, limitar intentos y cerrar sesión | Aprobado en pruebas Laravel | No aplica (HTTP) | Aprobada |
