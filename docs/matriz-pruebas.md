@@ -41,3 +41,12 @@ Validación de P5 realizada el 8 de noviembre de 2026 en MySQL 8.4.3 aislado, co
 |---|---|---|---|---|
 | INT-P5-MIG-01 | Instalación con migración de expediente_archivo pendiente | ExpedienteMigracionTest: simula versión anterior, ejecuta migrate, abre el expediente y vuelve a ejecutar migrate | Tabla creada, HTTP 200, paciente y anamnesis conservados; segunda ejecución sin duplicados | Aprobado |
 | INT-P5-MIG-02 | Flujos clínicos integrados y acceso | ExpedienteMigracionTest, ExpedienteClinicoTest, ExpedienteTratamientoReporteTest y OdontogramaTest | 16 pruebas y 148 aserciones aprobadas sobre MySQL | Aprobado |
+
+
+## Batería completa local de P5
+
+| ID | Alcance | Entorno | Resultado | Evidencia |
+|---|---|---|---|---|
+| INT-P5-FULL-01 | Batería completa de PHPUnit, incluida regresión de migración de Expedientes | PHP 8.5.11 y MySQL 8.4.3 aislado | 128 pruebas y 972 aserciones aprobadas; salida 0 | [Capturas y registro completo](evidencias/p5/README.md) |
+
+La ejecución se realizó el 8 de noviembre de 2026 en la computadora de Soophi00. Las capturas son del registro real de ejecución abierto en VS Code. La instalación que reportó el error requiere aplicar sus migraciones y repetir el recorrido manual.
