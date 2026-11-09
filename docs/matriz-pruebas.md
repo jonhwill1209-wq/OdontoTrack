@@ -28,6 +28,16 @@ Revalidación posterior de Usuarios: `php artisan test --filter=UsuarioTest` - *
 | CP-10 | Compatibilidad | Recorrido en Firefox | Abrir inicio de sesión, dashboard, agenda y reportes en Firefox | Las vistas cargan sin errores de interacción | Todas las pantallas verificadas cargaron correctamente | Firefox | Aprobado |
 ## Pendientes de cierre
 
-- Corregir y revalidar `DEF-10`: error al abrir expediente clínico por tabla `expediente_archivo` faltante.
+- Verificar migraciones pendientes en cada instalación antes de la RC. DEF-10 fue validado manualmente por QA en CP-06; la ausencia de `expediente_archivo` se resuelve aplicando la migración existente, sin reconstruir la base.
 - Ejecutar la prueba de compatibilidad `CP-10`.
 - Ejecutar nuevamente la suite completa después de integrar la corrección pendiente.
+
+
+## Regresión de migraciones de Expedientes
+
+Validación de P5 realizada el 8 de noviembre de 2026 en MySQL 8.4.3 aislado, con PHP 8.5.11. No se modificó la base de datos utilizada por QA.
+
+| ID | Caso | Prueba | Resultado | Estado |
+|---|---|---|---|---|
+| INT-P5-MIG-01 | Instalación con migración de expediente_archivo pendiente | ExpedienteMigracionTest: simula versión anterior, ejecuta migrate, abre el expediente y vuelve a ejecutar migrate | Tabla creada, HTTP 200, paciente y anamnesis conservados; segunda ejecución sin duplicados | Aprobado |
+| INT-P5-MIG-02 | Flujos clínicos integrados y acceso | ExpedienteMigracionTest, ExpedienteClinicoTest, ExpedienteTratamientoReporteTest y OdontogramaTest | 16 pruebas y 148 aserciones aprobadas sobre MySQL | Aprobado |
