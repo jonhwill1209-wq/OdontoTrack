@@ -1,0 +1,42 @@
+**********************
+Inicio de la transcripción de Windows PowerShell
+Hora de inicio: 20261108203408
+Nombre de usuario: DESKTOP-K2A1964\Usuario
+Usuario RunAs: DESKTOP-K2A1964\Usuario
+Nombre de la configuración: 
+Máquina: DESKTOP-K2A1964 (Microsoft Windows NT 10.0.26200.0)
+Aplicación host: powershell.exe -NoExit -File C:\Users\Usuario.DESKTOP-K2A1964\Documents\Codex\2026-11-06\https-github-com-jonhwill1209-wq-odontotrack-2\work\OdontoTrack\.vscode\mostrar-ejecucion.ps1
+Id. de proceso: 38180
+PSVersion: 5.1.26100.9444
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9444
+BuildVersion: 10.0.26100.9444
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+La transcripción ha comenzado. El archivo de salida es ../../outputs/Ejecucion_real_migraciones.txt
+ODONTOTRACK - VERIFICACIÓN LOCAL - DATOS FICTICIOS
+
+   INFO  Nothing to migrate.
+
+  Migration name .................................................................................................................... Batch / Status
+  2026_10_07_000001_create_usuario_table ................................................................................................... [1] Ran
+  2026_10_07_000002_create_odontologo_table ................................................................................................ [1] Ran
+  2026_10_07_000003_create_consultorio_table ............................................................................................... [1] Ran
+  2026_10_07_000004_create_paciente_table .................................................................................................. [1] Ran
+  2026_10_07_000005_create_cita_table ...................................................................................................... [1] Ran
+  2026_10_07_000006_create_expediente_table ................................................................................................ [1] Ran
+  2026_10_07_000007_create_anamnesis_table ................................................................................................. [1] Ran
+  2026_10_07_000008_create_tratamiento_table ............................................................................................... [1] Ran
+  2026_10_07_000009_create_evolucion_clinica_table ......................................................................................... [1] Ran
+  2026_10_07_000010_create_registro_odontograma_table ...................................................................................... [1] Ran
+  2026_11_06_000011_create_archivo_clinico_table ........................................................................................... [1] Ran
+  2026_11_07_000001_create_expediente_archivo_table ........................................................................................ [2] Ran
+Servidor local /login: HTTP 200
+Aplicación: http://127.0.0.1:8001
+**********************
+Fin de la transcripción de Windows PowerShell
+Hora de finalización: 20261108203411
+**********************

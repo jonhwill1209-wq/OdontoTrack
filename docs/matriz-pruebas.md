@@ -50,3 +50,15 @@ Validación de P5 realizada el 8 de noviembre de 2026 en MySQL 8.4.3 aislado, co
 | INT-P5-FULL-01 | Batería completa de PHPUnit, incluida regresión de migración de Expedientes | PHP 8.5.11 y MySQL 8.4.3 aislado | 128 pruebas y 972 aserciones aprobadas; salida 0 | [Capturas y registro completo](evidencias/p5/README.md) |
 
 La ejecución se realizó el 8 de noviembre de 2026 en la computadora de Soophi00. Las capturas son del registro real de ejecución abierto en VS Code. La instalación que reportó el error requiere aplicar sus migraciones y repetir el recorrido manual.
+
+
+## Recorrido manual P5 en aplicación local
+
+| ID | Recorrido | Resultado obtenido | Entorno | Estado |
+|---|---|---|---|---|
+| CP-P5-REAL-01 | Iniciar como odontóloga, buscar Prueba, abrir Ana Prueba y Abrir expediente clínico | Expediente visible sin Error 500 | Navegador local, PHP 8.5.11 y MySQL 8.4.3 de demostración | Aprobado |
+| CP-P5-REAL-02 | Guardar anamnesis y recargar | Mensaje de éxito y datos conservados al recargar | Mismo entorno de demostración | Aprobado |
+| CP-P5-REAL-03 | Cargar y descargar un adjunto de prueba | Mensaje de éxito, archivo listado y descarga correcta | Mismo entorno de demostración | Aprobado |
+| CP-P5-REAL-04 | Ejecutar migrate y migrate:status | Migración de expediente_archivo aplicada en lote 2, estado Ran; segunda ejecución sin pendientes | Consola local de demostración | Aprobado |
+
+[Capturas y detalle del recorrido del 8 de noviembre de 2026](evidencias/p5/Recorrido_aplicacion_real.md). Este entorno es independiente de la instalación original del reporte.

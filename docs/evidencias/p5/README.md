@@ -23,3 +23,8 @@ Se ejecutó PHPUnit con `--testdox` y configuración local de pruebas. El regist
 El error de tabla faltante recibido como DEF-04 corresponde a DEF-10 en el registro consolidado. La migración ya existe en develop; una instalación con ese error debe verificar su conexión y aplicar las migraciones pendientes con `php artisan config:clear`, `php artisan migrate:status` y `php artisan migrate`, y volver a revisar el estado. No debe reconstruirse la base con `migrate:fresh`.
 
 No se ejecutaron migraciones en la computadora de la persona que reportó el error. Después de actualizar su instalación debe revalidar el recorrido con el mismo paciente. La evidencia automatizada no sustituye esa comprobación manual.
+
+
+## Verificación manual de la aplicación
+
+[Recorrido real con capturas de la aplicación y consola](Recorrido_aplicacion_real.md). Incluye la ficha de Ana Prueba, apertura del expediente, persistencia de anamnesis, carga y descarga del adjunto y estado Ran de la migración.
