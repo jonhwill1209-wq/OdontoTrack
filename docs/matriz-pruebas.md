@@ -45,11 +45,11 @@ Validación de P5 realizada el 8 de noviembre de 2026 en MySQL 8.4.3 aislado, co
 
 ## Batería completa local de P5
 
-| ID | Alcance | Entorno | Resultado | Evidencia |
+| ID | Alcance | Entorno | Resultado | Observación |
 |---|---|---|---|---|
-| INT-P5-FULL-01 | Batería completa de PHPUnit, incluida regresión de migración de Expedientes | PHP 8.5.11 y MySQL 8.4.3 aislado | 128 pruebas y 972 aserciones aprobadas; salida 0 | [Capturas y registro completo](evidencias/p5/README.md) |
+| INT-P5-FULL-01 | Batería completa de PHPUnit, incluida regresión de migración de Expedientes | PHP 8.5.11 y MySQL 8.4.3 aislado | 128 pruebas y 972 aserciones aprobadas; salida 0 | Ejecución local de PHPUnit |
 
-La ejecución se realizó el 8 de noviembre de 2026 en la computadora de Soophi00. Las capturas son del registro real de ejecución abierto en VS Code. La instalación que reportó el error requiere aplicar sus migraciones y repetir el recorrido manual.
+La ejecución se realizó el 8 de noviembre de 2026 en la computadora de Soophi00. La instalación que reportó el error requiere aplicar sus migraciones y repetir el recorrido manual.
 
 
 ## Recorrido manual P5 en aplicación local
@@ -61,4 +61,4 @@ La ejecución se realizó el 8 de noviembre de 2026 en la computadora de Soophi0
 | CP-P5-REAL-03 | Cargar y descargar un adjunto de prueba | Mensaje de éxito, archivo listado y descarga correcta | Mismo entorno de demostración | Aprobado |
 | CP-P5-REAL-04 | Ejecutar migrate y migrate:status | Migración de expediente_archivo aplicada en lote 2, estado Ran; segunda ejecución sin pendientes | Consola local de demostración | Aprobado |
 
-[Capturas y detalle del recorrido del 8 de noviembre de 2026](evidencias/p5/Recorrido_aplicacion_real.md). Este entorno es independiente de la instalación original del reporte.
+Recorrido realizado el 8 de noviembre de 2026 en un entorno independiente de la instalación original del reporte.

@@ -29,4 +29,4 @@ Se añadió `ExpedienteMigracionTest`, que simula una instalación previa a la t
 
 ### Evidencia ampliada de P5
 
-Se ejecutó la batería completa local: **128 pruebas aprobadas y 972 aserciones**, con MySQL 8.4.3 aislado y PHP 8.5.11, salida 0. Se adjuntan [dos capturas reales en VS Code y el registro completo](evidencias/p5/README.md). Este resultado amplía la validación de 16 casos del módulo; no implica que se hayan ejecutado migraciones en la instalación que reportó el error.
+Se ejecutó la batería completa local: **128 pruebas aprobadas y 972 aserciones**, con MySQL 8.4.3 aislado y PHP 8.5.11, salida 0. Este resultado amplía la validación de 16 casos del módulo; no implica que se hayan ejecutado migraciones en la instalación que reportó el error.
