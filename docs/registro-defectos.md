@@ -17,4 +17,16 @@
 
 - Los defectos corregidos deben validarse manualmente y anotarse en `docs/matriz-pruebas.md`.
 - DEF-08 y DEF-09 requieren una nueva prueba luego de integrar la corrección de Persona 2.
-- DEF-10 bloquea el cierre de la Release Candidate hasta que Persona 5 lo corrija y se valide.
+- DEF-10 corresponde al Error 500 por `expediente_archivo` faltante, reportado inicialmente como DEF-04 por P5; DEF-04 identifica Reportes en este registro consolidado. QA ya documentó su recuperación con migraciones y aprobó CP-06. Cada instalación debe aplicar y verificar las migraciones antes de la RC; el cierre local no garantiza que otra base esté actualizada.
+
+
+## Revisión P5 del error de tabla faltante
+
+El 8 de noviembre de 2026 se verificó la correspondencia entre `Expediente::archivos()`, `ExpedienteArchivo` y la migración `2026_11_07_000001_create_expediente_archivo_table`. El esquema requerido está incluido en develop. La causa documentada por QA fue una migración pendiente en su instalación; no se requiere otra tabla o una segunda migración duplicada.
+
+Se añadió `ExpedienteMigracionTest`, que simula una instalación previa a la tabla, ejecuta la actualización y verifica apertura del expediente, conservación de paciente y anamnesis y repetición segura del comando. Con los casos de expediente, odontograma, archivos y reportes se aprobaron 16 pruebas y 148 aserciones en MySQL 8.4.3 aislado. El README incorpora el procedimiento de actualización y diagnóstico. La corrección operativa debe aplicarse a cada instalación; estas pruebas no ejecutan migraciones sobre la base local del reporte.
+
+
+### Evidencia ampliada de P5
+
+Se ejecutó la batería completa local: **128 pruebas aprobadas y 972 aserciones**, con MySQL 8.4.3 aislado y PHP 8.5.11, salida 0. Este resultado amplía la validación de 16 casos del módulo; no implica que se hayan ejecutado migraciones en la instalación que reportó el error.

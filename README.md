@@ -63,6 +63,26 @@ php artisan serve               # http://127.0.0.1:8000
 Para reconstruir la base desde cero: `php artisan migrate:fresh --seed`.
 Los archivos clínicos se guardan en el disco privado `local` de Laravel y se consultan mediante rutas autenticadas; no se requiere publicar `storage`.
 
+## Actualizar una instalación existente
+
+Después de descargar cambios y antes de iniciar la aplicación, actualizar las dependencias y aplicar las migraciones pendientes en la base configurada en `.env`:
+
+```bash
+git checkout develop
+git pull origin develop
+composer install
+php artisan config:clear
+php artisan migrate:status
+php artisan migrate
+php artisan migrate:status
+```
+
+Si el entorno tiene `APP_ENV=production`, ejecutar las migraciones mediante el procedimiento de despliegue del equipo; `--force` omite la confirmación de Laravel. Respaldar previamente la base según ese procedimiento. No usar `migrate:fresh`, `migrate:refresh` ni `db:wipe` para actualizar una base con datos.
+
+El expediente integrado consulta `expediente_archivo`, creada por `2026_11_07_000001_create_expediente_archivo_table`. La tabla anterior `archivo_clinico` no sustituye esa migración. Si aparece el error 1146, comprobar que `.env` apunta a la base esperada y que la migración figura como ejecutada. Luego abrir un paciente como odontólogo y verificar expediente, carga y descarga de adjuntos.
+
+Si la migración figura como ejecutada y la tabla sigue ausente, detener la actualización y revisar la integridad del esquema y los respaldos con el responsable; no borrar el historial de migraciones ni recrear la base para ocultar la inconsistencia.
+
 ## Credenciales de prueba (solo desarrollo)
 
 | Rol | Correo | Contraseña |
