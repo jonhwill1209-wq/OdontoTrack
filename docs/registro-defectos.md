@@ -8,11 +8,10 @@
 | DEF-04 | No había reportes de citas con métricas ni descarga PDF/Excel. | Reportes | Equipo de desarrollo | Media | Corregido; cubierto por INT-10 |
 | DEF-05 | La matriz de pruebas y el registro de defectos estaban vacíos. | QA y documentación | Equipo de desarrollo | Media | Corregido |
 | DEF-06 | No había evidencia de pruebas móviles. | QA responsive | QA | Media | Corregido; validado en Chrome Android con CP-12 |
+| DEF-07 | La administración de usuarios no estaba definida en el alcance. | Usuarios | Equipo | Baja | Corregido; Recepcionista administra usuarios, odontólogos y consultorios |
 | DEF-08 | El enlace Usuarios no aparecía en el menú de Recepcionista. | Usuarios | Persona 2 | Media | Corregido; validado manualmente |
 | DEF-09 | El campo Nombre completo rechazaba letras mayúsculas válidas. | Usuarios | Persona 2 | Media | Corregido; validado manualmente |
-| DEF-07 | La administración de usuarios no estaba definida en el alcance. | Usuarios | Equipo | Baja | Corregido; Recepcionista administra usuarios, odontólogos y consultorios |
-
-| DEF-10 | Al abrir un expediente clínico ocurre Error 500 porque no existe la tabla expediente_archivo. | Expedientes y archivos | Persona 5 | Alta | Pendiente |
+| DEF-10 | Al abrir un expediente clínico ocurría Error 500 por migraciones locales pendientes. | Expedientes y archivos | QA | Alta | Corregido; se ejecutaron las migraciones pendientes |
 
 ## Criterios de cierre
 

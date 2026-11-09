@@ -1,7 +1,6 @@
 # Matriz de pruebas
 
-Última suite completa registrada: `php artisan test` - **125 pruebas aprobadas, 941 aserciones**.
-
+Ejecución final registrada: `php artisan test` - **127 pruebas aprobadas, 963 aserciones** (suite del 8 de noviembre de 2026).
 Revalidación posterior de Usuarios: `php artisan test --filter=UsuarioTest` - **17 pruebas aprobadas, 114 aserciones**.
 
 | ID | Módulo | Caso de prueba | Pasos / cobertura | Resultado esperado | Resultado obtenido | Navegador | Estado |
@@ -21,7 +20,7 @@ Revalidación posterior de Usuarios: `php artisan test --filter=UsuarioTest` - *
 | CP-03 | Agenda de citas | Crear y marcar una cita como realizada | Agendar una cita para Ana Prueba y cambiar su estado | La cita aparece en agenda y su estado cambia correctamente | Cita creada y marcada como REALIZADA | Firefox | Aprobado |
 | CP-04 | Integración Agenda y Reportes | Reflejar cita realizada en reportes | Crear cita, marcarla realizada y consultar Reportes | Los indicadores y detalle incluyen la cita realizada | Total 1; realizadas 1; gráfica y detalle correctos | Firefox | Aprobado |
 | CP-05 | Agenda de citas | Evitar solapamiento | Intentar crear una segunda cita con el mismo horario, odontóloga y consultorio | El sistema rechaza la segunda cita e informa el conflicto | Se mostró el mensaje de conflicto de horario | Firefox | Aprobado |
-| CP-06 | Expedientes | Abrir expediente clínico como odontóloga | Abrir paciente y presionar Abrir expediente clínico | El expediente carga sin errores | Fallido: Error 500; falta la tabla `expediente_archivo` | Firefox | Fallido |
+| CP-06 | Expedientes | Abrir expediente clínico como odontóloga | Abrir paciente y presionar Abrir expediente clínico después de ejecutar migraciones pendientes | El expediente carga sin errores | Expediente cargado correctamente después de ejecutar `php artisan migrate` | Firefox | Aprobado |
 | CP-07 | Odontograma | Cargar odontograma de paciente | Abrir paciente y seleccionar Ver odontograma | Se muestran piezas dentales y formulario sin errores | Odontograma de Ana Prueba cargado correctamente | Firefox | Aprobado |
 | CP-08 | Interfaz | Visualización móvil | Abrir el panel desde un teléfono conectado a la misma red | El contenido se adapta sin cortes ni errores | Panel abierto; menú y tarjetas visibles | Chrome Android | Aprobado |
 | CP-09 | Usuarios | Revalidar menú y nombres con mayúsculas | Iniciar como Recepcionista, abrir Usuarios desde Administración y crear Recepcion QA Dos | El menú se muestra y el usuario con mayúsculas se crea sin errores | Menú Administración visible; usuario creado correctamente | Firefox | Aprobado |
